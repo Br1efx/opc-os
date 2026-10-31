@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["server/legacy-names.probe.ts"],
+  "exclude": []
+}

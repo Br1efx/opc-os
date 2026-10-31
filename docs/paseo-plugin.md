@@ -1,6 +1,6 @@
 # opc-core 与 Paseo 插件目录
 
-`plugins/opc-core` 按 Paseo 0.14 公开文档里的运行时入口来搭，并对齐当前 CLI 源码里 `paseo plugin init` 写出的文件（`packages/cli/src/commands/plugin/scaffold.ts`，仓库 `getpaseo/paseo` 的 `main`）。本环境没有安装 Paseo，因此没有执行 `paseo plugin init`，也没有把插件装进 daemon。
+`plugins/opc-core` 按 Paseo 0.14 公开文档里的运行时入口来搭，并对齐当前 CLI 源码里 `paseo plugin init` 写出的文件（`packages/cli/src/commands/plugin/scaffold.ts`，仓库 `getpaseo/paseo` 的 `main`）。搭空壳时没有执行 `paseo plugin init`。之后的安装试验写在 [spikes/S1.md](spikes/S1.md)，那次用的是临时 daemon，不是这里的目录说明。
 
 采用的结构：
 
