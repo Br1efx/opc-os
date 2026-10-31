@@ -1,0 +1,23 @@
+{
+  "name": "@opc-os/card-protocol",
+  "version": "0.0.0",
+  "private": true,
+  "description": "统一卡片协议的类型桩。D0 只有字段类型，没有校验、存储或序列化。",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
