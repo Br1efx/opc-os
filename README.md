@@ -16,9 +16,10 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 原型实验的记录在 [docs/spikes/](docs/spikes/README.md)。S1 在本机临时 daemon 上用 Git 快照装过两个插件。S2–S6 还没有满足架构页的通过标准，不能把那些项当成通过。
 
+私有插件 registry 的静态 JSON 和 Pages 工作流在 [docs/registry.md](docs/registry.md)。站点还要在 GitHub 里把 Pages 来源设成 GitHub Actions 才会发布。me 面板上的安装不在本仓库里完成。
+
 以下内容尚未开始，本仓库不能当作已经完成：
 
-- GitHub Pages 插件 registry
 - 在桌面或手机上打开「一人公司 OS」
 - M1–M6 的功能
 
@@ -30,6 +31,7 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 opc-os/
 ├─ plugins/opc-core          核心插件空壳
 ├─ packages/card-protocol    统一卡片类型桩
+├─ registry/                 GitHub Pages 上的插件 registry
 ├─ docs/                     说明与实验占位
 ├─ adr/                      架构决策记录
 ├─ README.md
