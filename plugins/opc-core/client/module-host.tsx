@@ -1,8 +1,9 @@
 import type { PluginClientContext, PluginScreenProps, PluginSidebarItemProps } from "@getpaseo/plugin/client";
 import { useSettings } from "@getpaseo/plugin/client";
 import { SidebarRow } from "@getpaseo/plugin/client/ui";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
+  MODULES,
   moduleById,
   reconcileRegistrations,
   shellSettings,
@@ -74,11 +75,23 @@ function registerModule(client: PluginClientContext, id: ModuleId): () => void {
   };
 }
 
-/** 设置可读之后，把打开的模块登记进侧栏。关掉的不登记。 */
+/** 只编码六个开关的取值。对象身份不能当依赖：useSettings 每次渲染都会 parse 出新对象。 */
+function moduleFlagsKey(flags: ModuleFlags): string {
+  return MODULES.map((mod) => (flags[mod.id] ? "1" : "0")).join("");
+}
+
+/**
+ * 设置可读之后，把打开的模块登记进侧栏。关掉的不登记。
+ * 依赖是开关取值。若依赖整份对象，保存尚未返回时，侧栏渲染会用旧值把刚卸下的模块登记回去。
+ */
 export function useModuleRegistration() {
   const settings = useSettings(shellSettings);
   const flags = settings.status === "ready" ? settings.values.modules : null;
+  const key = flags ? moduleFlagsKey(flags) : "";
+  const flagsRef = useRef(flags);
+  flagsRef.current = flags;
   useEffect(() => {
-    if (flags) applyModuleFlags(flags);
-  }, [flags]);
+    const current = flagsRef.current;
+    if (current) applyModuleFlags(current);
+  }, [key]);
 }
