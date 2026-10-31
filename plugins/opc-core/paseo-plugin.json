@@ -1,0 +1,10 @@
+{
+  "id": "opc-core",
+  "name": "一人公司 OS",
+  "description": "一人公司操作系统的核心插件外壳。当前只有一个页面和一个侧边栏按钮。",
+  "$comment": "D0 scaffold aligned with paseo plugin init. Icon and media stay empty until a real listing exists.",
+  "media": [],
+  "requirements": {
+    "paseo": ">=0.14.0"
+  }
+}
