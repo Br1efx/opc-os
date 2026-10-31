@@ -1,0 +1,15 @@
+{
+  "name": "opc-os",
+  "private": true,
+  "version": "0.0.0",
+  "description": "一人公司操作系统：装进 Paseo 的开源插件套装。当前仓库是 D0 脚手架。",
+  "license": "MIT",
+  "packageManager": "pnpm@10.33.4",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r --if-present run typecheck"
+  }
+}
