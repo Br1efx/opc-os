@@ -59,7 +59,7 @@
 
 ## 权限清单
 
-`plugins/opc-core/permissions.manifest.json` 是外壳的声明：不读文件、不写文件、不联网。六个模块 `enabled: false`，未启用时也不能预先写上路径或主机。
+`plugins/opc-core/permissions.manifest.json` 是外壳的声明：不读文件、不写文件、不联网。六个模块 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
 
 对照方式：
 

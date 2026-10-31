@@ -2,7 +2,7 @@
   "name": "@opc-os/card-protocol",
   "version": "0.0.0",
   "private": true,
-  "description": "统一卡片协议的类型桩。附带字段形状检查，没有状态机、存储或序列化。",
+  "description": "统一卡片协议的类型和校验。没有状态机、存储或序列化。",
   "license": "MIT",
   "type": "module",
   "exports": {

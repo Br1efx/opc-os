@@ -1,7 +1,7 @@
 # @opc-os/card-protocol
 
-统一卡片的类型桩，给以后的 S1（两个插件共用本包）留出包名和导出。
+统一卡片的类型和校验。`opc-core` 与探针插件都引用这个包。
 
-导出 `Card` 以及字段 `id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。`CARD_PROTOCOL_REVISION` 固定为 `"stub"`，表示协议还没有冻结。`CARD_FIELDS` 列出这些字段名。`hasCardShape` 只判断这些字段在不在、类型是否为字符串、字符串数组或布尔值，不判断状态机，也不要求非空。
+导出 `Card` 以及字段 `id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。`CARD_PROTOCOL_REVISION` 是 `"d1"`。`CARD_TYPES` 是选题、任务、资产、问题、素材。`owner` 是 `{ kind: "person" | "agent", id }`。
 
-本包没有文件格式，也没有被 `opc-core` 引用。引用方式和安装结果留到 S1 再写。
+`hasCardShape` 只判断字段在不在、类型是否对得上。`parseCard` 再要求标识、标题、状态、负责人 id 非空，证据和关联卡里的字符串非空，时间能被解析。状态机还没冻结。本包没有文件格式。

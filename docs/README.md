@@ -4,7 +4,8 @@
 
 | 文档 | 内容 |
 | --- | --- |
-| [modules.md](modules.md) | M1–M6 目录与计划中的开关。开关尚未接入。 |
+| [modules.md](modules.md) | M1–M6 目录，以及外壳上的运行时开关。 |
+| [glossary.md](glossary.md) | 中文术语表。界面默认中文，少数词保留英文。 |
 | [paseo-plugin.md](paseo-plugin.md) | `opc-core` 如何对齐 Paseo 0.14 插件目录，以及本阶段的假设。 |
 | [verify.md](verify.md) | verify 七项里哪些已经强制执行，哪些明确未执行。 |
 | [registry.md](registry.md) | GitHub Pages 私有 registry 的路径、`PASEO_PLUGIN_REGISTRY`，以及 me 面板安装步骤。实机安装不在本仓库。 |
