@@ -6,16 +6,16 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 ## 当前进度
 
-这里只完成阶段 D0 的脚手架，对应执行步骤里的第 1 步余下部分和第 2 步：
+这里完成了阶段 D0 里仓库自身能做的脚手架和 verify 门禁：
 
 - 中文说明、`docs/`、`adr/`
 - pnpm workspace，覆盖 `plugins/*` 与 `packages/*`
-- `packages/card-protocol` 的类型桩
+- `packages/card-protocol` 的类型桩，以及字段形状的单元测试
 - `plugins/opc-core` 的空壳：页面「一人公司 OS」，以及打开该页的侧边栏按钮
+- 类型检查、单元测试、目录边界、许可证扫描、权限清单对照。这五项失败会拦住 `pnpm verify` 和 GitHub Actions。手机端打包和性能测量还没有工具链，不算通过，见 [docs/verify.md](docs/verify.md)
 
 以下内容尚未开始，本仓库不能当作已经完成：
 
-- CI 上的 7 项 verify
 - 原型实验 S1–S6 及其结论
 - GitHub Pages 插件 registry
 - 在已安装的 Paseo 里实际加载本插件
@@ -43,7 +43,7 @@ opc-os/
 
 ```bash
 pnpm install
-pnpm typecheck
+pnpm verify
 ```
 
-`pnpm typecheck` 只跑本仓库的 TypeScript 检查。Paseo 安装插件时还会按自己的编译器再编一次；这一步还没有在真机上做过。
+`pnpm verify` 跑目前能强制执行的检查。手机端打包要单独看 `pnpm verify:mobile`：没有 paseo 时退出码是 2，表示没有执行，不是通过。`pnpm typecheck` 仍然只做 TypeScript 检查。Paseo 安装插件时还会按自己的编译器再编一次；这一步还没有在真机上做过。

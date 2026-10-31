@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "source": "Notion「v2.0 · 插件体系总体架构与工程规范」§5",
+  "budgets": {
+    "plugin-startup": {
+      "max": 300,
+      "unit": "ms",
+      "description": "插件启动"
+    },
+    "mobile-first-screen": {
+      "max": 1500,
+      "unit": "ms",
+      "description": "手机端单页首屏"
+    },
+    "resident-memory": {
+      "max": 150,
+      "unit": "MB",
+      "description": "后台常驻内存"
+    }
+  },
+  "measurement": {
+    "enforced": false,
+    "todo": "Paseo 工具链和真机计时接入后，再写入测量结果并对照上述阈值。在此之前不得把 enforced 设为 true。索引任务走低优先级没有单独的数值，本文件不检查它。"
+  }
+}

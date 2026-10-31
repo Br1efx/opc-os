@@ -4,6 +4,8 @@
 
 计划中的开关只是预留的标识，便于以后按模块打开或关闭。D0 不读取这些标识，页面「一人公司 OS」也不加载任何模块。某个模块出错时只显示「这块坏了」的错误边界，同样留到实现阶段。
 
+`plugins/opc-core/permissions.manifest.json` 里这六个模块的 `enabled` 都是 false，也没有文件或网络权限。清单和源码的对照见 [verify.md](verify.md)。
+
 | 模块 | 目录 | 计划中的开关标识 | 现在 |
 | --- | --- | --- | --- |
 | M1 笔记 | `plugins/opc-core/modules/m1-notes` | `m1-notes` | 未接入 |

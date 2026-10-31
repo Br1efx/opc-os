@@ -10,6 +10,13 @@
     "pnpm": ">=10"
   },
   "scripts": {
-    "typecheck": "pnpm -r --if-present run typecheck"
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "pnpm -r --if-present run test && node --test \"scripts/verify/*.test.mjs\"",
+    "verify": "node scripts/verify/run.mjs",
+    "verify:boundary": "node scripts/verify/boundary.mjs",
+    "verify:license": "node scripts/verify/license-scan.mjs",
+    "verify:manifest": "node scripts/verify/manifest.mjs",
+    "verify:perf": "node scripts/verify/perf-budget.mjs",
+    "verify:mobile": "node scripts/verify/mobile.mjs"
   }
 }
