@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "registry": {
+    "name": "opc-os",
+    "url": "https://br1efx.github.io/opc-os"
+  },
+  "categories": [
+    {
+      "slug": "core",
+      "label": "核心",
+      "description": "opc-os 自己审过、钉在某次 Git 提交上的插件"
+    }
+  ],
+  "featured": ["br1efx/opc-core"],
+  "plugins": [
+    {
+      "id": "br1efx/opc-core",
+      "name": "一人公司 OS",
+      "description": "一人公司操作系统的核心插件外壳。当前只有一个页面和一个侧边栏按钮。",
+      "translations": {
+        "zh-CN": {
+          "name": "一人公司 OS",
+          "description": "一人公司操作系统的核心插件外壳。当前只有一个页面和一个侧边栏按钮。"
+        }
+      },
+      "license": "MIT",
+      "categories": ["core"],
+      "author": {
+        "github": "Br1efx",
+        "name": "Br1efx"
+      },
+      "repository": {
+        "url": "https://github.com/Br1efx/opc-os",
+        "commit": "ec4a1df803c556f5c650aaea4fa2284b204f3396"
+      },
+      "artifact": {
+        "kind": "git",
+        "remote": "https://github.com/Br1efx/opc-os.git",
+        "commit": "ec4a1df803c556f5c650aaea4fa2284b204f3396",
+        "pluginPath": "plugins/opc-core"
+      },
+      "media": [],
+      "submittedAt": "2026-10-31T21:18:56.000Z",
+      "reviewedAt": "2026-10-31T21:18:56.000Z",
+      "updatedAt": "2026-10-31T21:18:56.000Z",
+      "publishedAt": "2026-10-31T21:18:56.000Z"
+    }
+  ],
+  "generatedAt": "2026-10-31T21:18:56.000Z"
+}

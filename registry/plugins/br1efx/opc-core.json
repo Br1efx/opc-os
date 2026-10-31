@@ -1,0 +1,36 @@
+{
+  "id": "br1efx/opc-core",
+  "name": "一人公司 OS",
+  "description": "一人公司操作系统的核心插件外壳。当前只有一个页面和一个侧边栏按钮。",
+  "translations": {
+    "zh-CN": {
+      "name": "一人公司 OS",
+      "description": "一人公司操作系统的核心插件外壳。当前只有一个页面和一个侧边栏按钮。"
+    }
+  },
+  "license": "MIT",
+  "categories": ["core"],
+  "author": {
+    "github": "Br1efx",
+    "name": "Br1efx"
+  },
+  "repository": {
+    "url": "https://github.com/Br1efx/opc-os",
+    "commit": "ec4a1df803c556f5c650aaea4fa2284b204f3396"
+  },
+  "artifact": {
+    "kind": "git",
+    "remote": "https://github.com/Br1efx/opc-os.git",
+    "commit": "ec4a1df803c556f5c650aaea4fa2284b204f3396",
+    "pluginPath": "plugins/opc-core"
+  },
+  "media": [],
+  "submittedAt": "2026-10-31T21:18:56.000Z",
+  "reviewedAt": "2026-10-31T21:18:56.000Z",
+  "updatedAt": "2026-10-31T21:18:56.000Z",
+  "publishedAt": "2026-10-31T21:18:56.000Z",
+  "readme": "opc-core is the shell of opc-os. This pin adds one screen titled 一人公司 OS and one sidebar button that opens it. Module folders are notes only.\n",
+  "overviewTranslations": {
+    "zh-CN": "opc-core 是 opc-os 的核心插件外壳。这一版只有标题为「一人公司 OS」的页面，以及一个打开该页的侧边栏按钮。六个模块目录只有说明。\n"
+  }
+}
