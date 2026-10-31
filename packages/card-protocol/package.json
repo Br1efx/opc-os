@@ -2,7 +2,7 @@
   "name": "@opc-os/card-protocol",
   "version": "0.0.0",
   "private": true,
-  "description": "统一卡片协议的类型桩。D0 只有字段类型，没有校验、存储或序列化。",
+  "description": "统一卡片协议的类型桩。附带字段形状检查，没有状态机、存储或序列化。",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -15,9 +15,11 @@
     "src"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test src/shape.test.ts"
   },
   "devDependencies": {
+    "@types/node": "^22.19.0",
     "typescript": "^5.9.3"
   }
 }

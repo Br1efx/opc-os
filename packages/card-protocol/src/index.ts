@@ -9,6 +9,57 @@
 /** 类型桩标记。不是已经发布的协议版本号。 */
 export const CARD_PROTOCOL_REVISION = "stub" as const;
 
+/** 桩阶段要求出现的字段。顺序与架构说明一致。 */
+export const CARD_FIELDS = [
+  "id",
+  "type",
+  "status",
+  "title",
+  "oneLiner",
+  "owner",
+  "source",
+  "evidence",
+  "related",
+  "time",
+  "unread",
+] as const;
+
+export type CardField = (typeof CARD_FIELDS)[number];
+
+const STRING_FIELDS = [
+  "id",
+  "type",
+  "status",
+  "title",
+  "oneLiner",
+  "owner",
+  "source",
+  "time",
+] as const satisfies readonly CardField[];
+
+function isStringArray(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+/**
+ * 只检查桩字段是否存在、类型是否对得上。
+ * 不检查取值范围、状态机或非空。
+ */
+export function hasCardShape(value: unknown): value is Card {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const record = value as Record<string, unknown>;
+  for (const field of STRING_FIELDS) {
+    if (typeof record[field] !== "string") return false;
+  }
+  return (
+    isStringArray(record.evidence) &&
+    isStringArray(record.related) &&
+    typeof record.unread === "boolean"
+  );
+}
+
 /** 卡片类型。选题、任务、资产、问题、素材等取值尚未冻结，故用字符串。 */
 export type CardType = string;
 
