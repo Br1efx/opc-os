@@ -7,6 +7,6 @@
 | [modules.md](modules.md) | M1–M6 目录与计划中的开关。开关尚未接入。 |
 | [paseo-plugin.md](paseo-plugin.md) | `opc-core` 如何对齐 Paseo 0.14 插件目录，以及本阶段的假设。 |
 | [verify.md](verify.md) | verify 七项里哪些已经强制执行，哪些明确未执行。 |
-| [spikes/](spikes/) | S1–S6 的占位。结论留到 D0 第 4 步再写。 |
+| [spikes/](spikes/) | S1–S6 的实验记录。每项结论以对应的 `Sx.md` 为准。 |
 
 `adr/` 在仓库根目录，不在 `docs/` 里。写法见 [../adr/README.md](../adr/README.md)。

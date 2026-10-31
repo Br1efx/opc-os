@@ -14,11 +14,12 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 - `plugins/opc-core` 的空壳：页面「一人公司 OS」，以及打开该页的侧边栏按钮
 - 类型检查、单元测试、目录边界、许可证扫描、权限清单对照。这五项失败会拦住 `pnpm verify` 和 GitHub Actions。手机端打包和性能测量还没有工具链，不算通过，见 [docs/verify.md](docs/verify.md)
 
+原型实验的记录在 [docs/spikes/](docs/spikes/README.md)。S1 在本机临时 daemon 上用 Git 快照装过两个插件。S2–S6 还没有满足架构页的通过标准，不能把那些项当成通过。
+
 以下内容尚未开始，本仓库不能当作已经完成：
 
-- 原型实验 S1–S6 及其结论
 - GitHub Pages 插件 registry
-- 在已安装的 Paseo 里实际加载本插件
+- 在桌面或手机上打开「一人公司 OS」
 - M1–M6 的功能
 
 架构里规划的外围插件（`opc-grok`、`opc-telegram`、`opc-collect-*`）和外置服务（`opc-datad`、`render-queue`）也不在本目录中。

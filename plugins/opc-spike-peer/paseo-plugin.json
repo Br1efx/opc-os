@@ -1,0 +1,10 @@
+{
+  "id": "opc-spike-peer",
+  "name": "OPC spike peer",
+  "description": "D0 探针插件。用来和 opc-core 共用 card-protocol。没有产品功能。",
+  "media": [],
+  "requirements": {
+    "paseo": ">=0.14.0"
+  },
+  "build": [["pnpm", "-C", "../..", "install", "--frozen-lockfile"]]
+}
