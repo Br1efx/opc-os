@@ -2,8 +2,9 @@
   "name": "opc-core",
   "private": true,
   "version": "0.0.0",
-  "description": "一人公司操作系统核心插件空壳。D0 只有一个页面和一个侧边栏按钮。",
+  "description": "一人公司操作系统核心插件外壳。含模块开关、设置和通知入口。",
   "license": "MIT",
+  "type": "module",
   "files": [
     "paseo-plugin.json",
     "permissions.manifest.json",
@@ -19,7 +20,8 @@
     "modules/"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test shared/*.test.mts"
   },
   "dependencies": {
     "@opc-os/card-protocol": "workspace:*"

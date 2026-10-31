@@ -1,31 +1,15 @@
 import type { PluginScreenProps } from "@getpaseo/plugin/client";
-import { useMemo } from "react";
 import { Text, View } from "react-native";
+import { ModuleSwitches } from "./module-switches";
+import { useScreenStyles } from "./screen-style";
 
 export function HomeScreen({ theme, layout }: PluginScreenProps) {
-  const styles = useMemo(
-    () => ({
-      screen: {
-        flex: 1,
-        padding: layout.compact ? 16 : 24,
-        backgroundColor: theme.colors.surface0,
-      },
-      title: {
-        color: theme.colors.foreground,
-        fontSize: layout.compact ? 22 : 28,
-      },
-      detail: {
-        color: theme.colors.foregroundMuted,
-        marginTop: 8,
-      },
-    }),
-    [theme, layout.compact],
-  );
-
+  const styles = useScreenStyles(theme, layout.compact);
   return (
     <View style={styles.screen}>
       <Text style={styles.title}>一人公司 OS</Text>
-      <Text style={styles.detail}>核心插件外壳。模块尚未接入。</Text>
+      <Text style={styles.detail}>打开的模块会出现在侧栏。关掉之后，对应页面和侧栏入口会卸掉。</Text>
+      <ModuleSwitches compact={layout.compact} theme={theme} />
     </View>
   );
 }

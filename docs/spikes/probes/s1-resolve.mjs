@@ -15,13 +15,14 @@ const peer = resolveFrom(path.join(root, "plugins/opc-spike-peer"));
 const same = core === peer;
 
 const protocol = await import(pathToFileURL(core).href);
+// 示例跟随 card-protocol d1：类型是已知卡片，负责人是 Agent。
 const sample = {
   id: "s1",
-  type: "probe",
+  type: "task",
   status: "open",
   title: "shared",
   oneLiner: "two plugins",
-  owner: "spike",
+  owner: { kind: "agent", id: "spike" },
   source: "s1-resolve",
   evidence: [],
   related: [],
