@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "pluginId": "opc-core",
+  "filesystem": {
+    "read": [],
+    "write": []
+  },
+  "network": {
+    "enabled": false,
+    "hosts": []
+  },
+  "modules": {
+    "m1-notes": {
+      "enabled": false,
+      "filesystem": { "read": [], "write": [] },
+      "network": { "enabled": false, "hosts": [] }
+    },
+    "m2-card-wall": {
+      "enabled": false,
+      "filesystem": { "read": [], "write": [] },
+      "network": { "enabled": false, "hosts": [] }
+    },
+    "m3-gateway": {
+      "enabled": false,
+      "filesystem": { "read": [], "write": [] },
+      "network": { "enabled": false, "hosts": [] }
+    },
+    "m4-tasks": {
+      "enabled": false,
+      "filesystem": { "read": [], "write": [] },
+      "network": { "enabled": false, "hosts": [] }
+    },
+    "m5-ui": {
+      "enabled": false,
+      "filesystem": { "read": [], "write": [] },
+      "network": { "enabled": false, "hosts": [] }
+    },
+    "m6-i18n": {
+      "enabled": false,
+      "filesystem": { "read": [], "write": [] },
+      "network": { "enabled": false, "hosts": [] }
+    }
+  }
+}

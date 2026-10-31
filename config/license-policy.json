@@ -1,0 +1,53 @@
+{
+  "allow": [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSD-3-Clause-Clear",
+    "0BSD",
+    "ISC",
+    "CC0-1.0",
+    "Unlicense",
+    "MPL-2.0"
+  ],
+  "allowedExceptions": ["LLVM-exception"],
+  "exceptions": [
+    {
+      "name": "@getpaseo/plugin",
+      "version": "0.14.0",
+      "declared": null,
+      "treatAs": "Apache-2.0",
+      "reason": "npm 包没有 license 字段，也没有附上 LICENSE。上游 getpaseo/paseo 标签 v0.14.0 的 LICENSE 是 Apache-2.0。换版本必须重新核对。"
+    },
+    {
+      "name": "@getpaseo/client",
+      "version": "0.14.0",
+      "declared": null,
+      "treatAs": "Apache-2.0",
+      "reason": "npm 包没有 license 字段，也没有附上 LICENSE。上游 getpaseo/paseo 标签 v0.14.0 的 LICENSE 是 Apache-2.0。换版本必须重新核对。"
+    },
+    {
+      "name": "@getpaseo/protocol",
+      "version": "0.14.0",
+      "declared": null,
+      "treatAs": "Apache-2.0",
+      "reason": "npm 包没有 license 字段，也没有附上 LICENSE。上游 getpaseo/paseo 标签 v0.14.0 的 LICENSE 是 Apache-2.0。换版本必须重新核对。"
+    },
+    {
+      "name": "@getpaseo/relay",
+      "version": "0.14.0",
+      "declared": null,
+      "treatAs": "Apache-2.0",
+      "reason": "npm 包没有 license 字段，也没有附上 LICENSE。上游 getpaseo/paseo 标签 v0.14.0 的 LICENSE 是 Apache-2.0。换版本必须重新核对。"
+    },
+    {
+      "name": "caniuse-lite",
+      "version": "1.0.30001820",
+      "declared": "CC-BY-4.0",
+      "accept": true,
+      "reason": "React Native 工具链的传递依赖，内容是浏览器兼容数据，许可是 CC-BY-4.0。规范表没有把 CC-BY 列为可直接使用的代码许可，所以不加入总允许列表，只放行这一个包的这一个版本。不把该数据抄进本仓库。"
+    }
+  ]
+}

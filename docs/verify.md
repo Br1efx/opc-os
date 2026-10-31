@@ -1,0 +1,96 @@
+# verify 门禁
+
+架构页「v2.0 · 插件体系总体架构与工程规范」§5 要求合并前通过 7 项。本仓库现在能强制执行其中 5 项。另外 2 项没有 Paseo 或手机打包工具链，脚本会标成 `DEFERRED`。`DEFERRED` 不是通过。
+
+| # | 项 | 现在 | 命令 |
+| --- | --- | --- | --- |
+| 1 | 类型检查 | 强制。失败则 `pnpm verify` 退出 1 | `pnpm typecheck` |
+| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，以及 `scripts/verify` 里的策略测试 | `pnpm test` |
+| 3 | 目录边界 | 强制 | `pnpm verify:boundary` |
+| 4 | 许可证扫描 | 强制 | `pnpm verify:license` |
+| 5 | 权限清单对照 | 强制 | `pnpm verify:manifest` |
+| 6 | 手机端打包 | 未执行 | `pnpm verify:mobile` |
+| 7 | 性能预算 | 只检查阈值文件；不测量 | `pnpm verify:perf` |
+
+`pnpm verify` 会跑 1–5，以及第 7 项的阈值文件。这些失败时退出码是 1。手机端打包和性能测量记为 `DEFERRED`，不让 `pnpm verify` 失败，也**不表示这两项通过**。GitHub Actions 工作流 `verify` 的 job 名叫 `enforced gates`。它变绿只说明强制项过了。
+
+单独跑手机端命令时，没有执行打包的退出码是 2，不是 0。
+
+## 目录边界
+
+规则在 `config/directory-boundary.json`。
+
+- `plugins/opc-core` 顶层只能是清单里声明的文件和目录。`server/`、`shared/` 允许以后出现，现在还没有。
+- `modules/` 下只能是 M1–M6 六个目录，里面只允许 Markdown。TypeScript 要放进 `client/`、`server/` 或 `shared/`。
+- `packages/` 不能 import `plugins/`。插件可以 import `@opc-os/card-protocol`。
+- 一个插件不能 import 另一个插件。
+- 界面端（`index.client.tsx`、`client/`）不能 import 服务端 SDK 或 `server/`。服务端和 `shared/` 不能 import `react-native`、界面端 SDK 或 `client/`。
+
+这是源码级别的检查，不是 Paseo 编译器。编译器要等装上 Paseo 再跑。
+
+## 许可证
+
+总允许列表在 `config/license-policy.json` 的 `allow`：
+
+| 标识 | 为什么在列表里 |
+| --- | --- |
+| MIT、Apache-2.0、BSD-2-Clause、BSD-3-Clause、BSD-3-Clause-Clear、0BSD | 规范表里的 MIT / Apache-2.0 / BSD |
+| ISC、MIT-0 | npm 上常见的宽松许可，条款接近 BSD。规范表没有单列，这里写明后放行 |
+| CC0-1.0、Unlicense | 公有领域奉献，比 MIT 更宽，不是专有许可 |
+| MPL-2.0 | 规范表允许使用。扫描器只认标识，**不会**检查「改过的那个文件有没有开源」 |
+
+`OR` 里只要有一个允许的标识就通过，因为可以选择那个标识。`AND` 必须每一边都允许。`WITH` 只接受 `allowedExceptions` 里的例外（目前是 `LLVM-exception`）。
+
+下面这些会失败：
+
+- AGPL、GPL、LGPL（含 `-only` / `-or-later`）
+- `UNLICENSED`、BUSL、SSPL
+- 没有许可字段，或写着 `SEE LICENSE IN …` 这类解析不了的文本
+- 不在允许列表、也没有钉死例外的标识，例如一般的 CC-BY
+
+例外必须同时写上包名、版本和当时的声明。版本或声明对不上就失败，不能靠总允许列表蒙混。当前例外：
+
+| 包 | 声明 | 处理 |
+| --- | --- | --- |
+| `@getpaseo/plugin`、`client`、`protocol`、`relay` 的 `0.14.0` | npm 包没有 `license` 字段，也没有附 LICENSE | 按上游 `getpaseo/paseo` 标签 `v0.14.0` 的 LICENSE 记为 Apache-2.0。换版本要重新打开那个标签核对 |
+| `caniuse-lite@1.0.30001820` | CC-BY-4.0 | React Native 工具链带进来的浏览器数据。CC-BY **不**进入总允许列表，只放行这一个版本。不把这份数据抄进仓库 |
+
+本仓库自己的 `package.json` 必须是 MIT，和根目录 `LICENSE` 一致。
+
+## 权限清单
+
+`plugins/opc-core/permissions.manifest.json` 是外壳的声明：不读文件、不写文件、不联网。六个模块 `enabled: false`，未启用时也不能预先写上路径或主机。
+
+对照方式：
+
+- 清单本身要能解析，`pluginId` 要等于 `paseo-plugin.json` 的 `id`，模块集合要和目录边界里的六个目录一致。
+- 扫 `opc-core` 的 `.ts` / `.tsx`。出现 `node:fs` 而 read/write 都是空的，失败。出现 `fetch`、`WebSocket` 或 `node:http` 而 `network.enabled` 不是 true，失败。
+- 联网打开之后，源码里的 `http(s)://` 主机必须出现在 `hosts`。没有字面量网址时失败，避免动态地址绕过清单。
+
+还做不到的部分：清单里一旦写了具体路径，扫描器**不能**证明源码只访问了这些路径。现在清单是空的，源码里也没有文件系统 API，所以这一缺口还没有被用到。
+
+## 手机端打包
+
+未执行，不是通过。
+
+`pnpm verify:mobile` 只核对三件静态前提：`index.client.tsx`、`client/home.tsx`、`react-native` 写在开发依赖里。然后看 PATH 上有没有 `paseo`。
+
+- 没有 `paseo`：退出码 2，状态 `DEFERRED`。CI 镜像里没有 Paseo，也没有 Android/iOS 打包工具链，不会去跑 `react-native bundle` 假装打包。
+- 有 `paseo`，但仓库还没有接上真实打包命令：退出码 1。找到二进制不算打包成功。
+- 入口文件缺失：退出码 1。
+
+TODO：Paseo 工具链进 CI 之后，把官方打包命令接到 `scripts/verify/mobile.mjs`，只有那个命令退出 0 才能返回 `pass`。
+
+## 性能预算
+
+`config/perf-budget.json` 锁定规范里的三个数字：
+
+- 插件启动 `max` 300，单位 ms
+- 手机端单页首屏 `max` 1500，单位 ms
+- 后台常驻内存 `max` 150，单位 MB
+
+CI 检查文件存在、JSON 可解析、这三个数字和单位没有被改掉。`measurement.enforced` 必须是 `false`。把它改成 `true` 会失败，因为仓库里没有测量结果。
+
+`pnpm verify:perf` 退出 0 只表示阈值文件有效。输出里的性能测量仍是 `DEFERRED`。
+
+TODO：有 Paseo 和真机计时之后，把测量结果写进单独的结果文件，再允许 `measurement.enforced` 变为 true，并按上面的阈值判定。规范里还有「索引任务走低优先级」，没有单独的数字，现在不检查。

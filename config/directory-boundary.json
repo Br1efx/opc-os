@@ -1,0 +1,26 @@
+{
+  "pluginRoot": "plugins/opc-core",
+  "requiredTopLevel": [
+    "paseo-plugin.json",
+    "package.json",
+    "tsconfig.json",
+    "permissions.manifest.json",
+    "OVERVIEW.md",
+    "OVERVIEW.zh-CN.md",
+    "index.client.tsx",
+    "index.server.ts",
+    "client",
+    "modules"
+  ],
+  "optionalTopLevel": ["server", "shared", "index.client.ts", "index.server.tsx"],
+  "optionalPatterns": ["^OVERVIEW\\..+\\.md$"],
+  "modules": [
+    "m1-notes",
+    "m2-card-wall",
+    "m3-gateway",
+    "m4-tasks",
+    "m5-ui",
+    "m6-i18n"
+  ],
+  "moduleAllowedExtensions": [".md"]
+}

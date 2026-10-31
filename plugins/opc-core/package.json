@@ -6,6 +6,7 @@
   "license": "MIT",
   "files": [
     "paseo-plugin.json",
+    "permissions.manifest.json",
     "OVERVIEW.md",
     "OVERVIEW.*.md",
     "index.client.ts",
