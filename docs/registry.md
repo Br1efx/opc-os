@@ -42,10 +42,10 @@ Pages 对公开仓库是公开的。这里的「私有」是指：不上架 `plu
 | --- | --- |
 | `artifact.kind` | `git` |
 | `artifact.remote` | `https://github.com/Br1efx/opc-os.git` |
-| `artifact.commit` | `bb97167c8ed8584738f3057b10902553154b7c60` |
+| `artifact.commit` | `78f95e5a5a95621e4afe687028852c6dee201705` |
 | `artifact.pluginPath` | `plugins/opc-core` |
 
-这条提交是 opc-os#7 squash 进 `main` 的结果，也就是 D4（网关与监控：外接 Magpie、opc-datad、成本熔断）。该提交里的 `plugins/opc-core/paseo-plugin.json` 带有准备命令 `pnpm -C ../.. install --frozen-lockfile`。换一次被允许安装的提交，就要改这个 JSON 再合并；合并本身就是对那次提交的批准。不要改成分支名。仓库不含 Magpie 源码。
+这条提交是 opc-os#9 squash 进 `main` 的结果，也就是 D2（文件面板笔记 v1：编辑、问 Agent、批注、锁定）。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）之上。该提交里的 `plugins/opc-core/paseo-plugin.json` 带有准备命令 `pnpm -C ../.. install --frozen-lockfile`。换一次被允许安装的提交，就要改这个 JSON 再合并；合并本身就是对那次提交的批准。不要改成分支名。仓库仍不含 Magpie 源码。
 
 ## 字段从哪来
 
@@ -55,7 +55,7 @@ Pages 对公开仓库是公开的。这里的「私有」是指：不上架 `plu
 - `packages/server/src/server/plugins/managed-source/registry.ts`：安装只解析 `id` 和 `artifact`，URL 是 `<基址>/plugins/<owner>/<slug>.json`。其它字段被忽略。
 - 同标签的 `docs/plugins.md` 指向 [getpaseo/plugins 的 PROTOCOL.md](https://github.com/getpaseo/plugins/blob/main/PROTOCOL.md)。目录用的 `index.json` 和详情里的名称、说明、时间，按那份协议和 0.14 的 `PublishedPluginSchema` 写上。daemon 安装不读它们。
 
-S1 没有用 registry。它在临时 daemon 上用 Git 源装过，远程是 `https://github.com/Br1efx/opc-os.git`，路径是 `plugins/opc-core`。当时跑通的提交是分支上的 `d682fc9bbe0f2d792fffb3f187f59642db7c8b8d`，不是现在钉住的 `bb97167c8ed8584738f3057b10902553154b7c60`。见 [spikes/S1.md](spikes/S1.md)。
+S1 没有用 registry。它在临时 daemon 上用 Git 源装过，远程是 `https://github.com/Br1efx/opc-os.git`，路径是 `plugins/opc-core`。当时跑通的提交是分支上的 `d682fc9bbe0f2d792fffb3f187f59642db7c8b8d`，不是现在钉住的 `78f95e5a5a95621e4afe687028852c6dee201705`。见 [spikes/S1.md](spikes/S1.md)。
 
 由此写下的约定：
 
@@ -63,7 +63,7 @@ S1 没有用 registry。它在临时 daemon 上用 Git 源装过，远程是 `ht
 2. 这是 monorepo，所以必须带 `pluginPath`。省略的话会去装仓库根目录。
 3. `remote` 沿用 S1 成功时的 `https://github.com/Br1efx/opc-os.git`。
 4. 默认 `name` / `description` 用插件清单里的中文。me 面板读的是这份目录，不是官方英文市场。
-5. 时间戳是被钉提交的时间（`2026-11-01T00:53:09.000Z`），不是 Pages 实际发布的时间。
+5. 时间戳是被钉提交的时间（`2026-11-01T01:14:09.000Z`），不是 Pages 实际发布的时间。
 6. 没有在 me 面板上用这条 registry 记录重装过。S1 的 `running` 不能当成这次安装已经成功。
 
 `pnpm test` 会检查：JSON 能解析、id 和路径一致、`index.json` 与详情除 `readme` 外一致、commit 是完整小写 SHA、文件里没有像密钥的文本。
@@ -101,7 +101,7 @@ Git 检出是公开仓库，不需要给 registry 配 `pluginRegistries` 凭证�
 人在 me 面板上做完安装之后再勾。本 PR 一项都没有在 VPS 上勾过。
 
 - [ ] `curl -sI https://br1efx.github.io/opc-os/plugins/br1efx/opc-core.json` 是 200，响应里没有 `Location`。
-- [ ] `curl -fsS` 同一地址，正文的 `id` 是 `br1efx/opc-core`，`artifact.commit` 是 `bb97167c8ed8584738f3057b10902553154b7c60`，`artifact.pluginPath` 是 `plugins/opc-core`。
+- [ ] `curl -fsS` 同一地址，正文的 `id` 是 `br1efx/opc-core`，`artifact.commit` 是 `78f95e5a5a95621e4afe687028852c6dee201705`，`artifact.pluginPath` 是 `plugins/opc-core`。
 - [ ] 只在 me 的 daemon 进程里看到 `PASEO_PLUGIN_REGISTRY=https://br1efx.github.io/opc-os`。dad 的环境里没有这项。
 - [ ] `paseo plugin ls` 里有 `opc-core`，状态是 `running`，来源是这份 registry，提交等于上面的 SHA。
 - [ ] 连到 me（6767）的手机或电脑能打开页面「一人公司 OS」。这一条对应架构 §11 的验收，仍然不在本 PR。
