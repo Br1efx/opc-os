@@ -19,6 +19,21 @@ importers:
 
   plugins/opc-core:
     dependencies:
+      '@codemirror/commands':
+        specifier: ^6.10.0
+        version: 6.11.1
+      '@codemirror/lang-markdown':
+        specifier: ^6.3.0
+        version: 6.5.2
+      '@codemirror/language':
+        specifier: ^6.12.0
+        version: 6.13.1
+      '@codemirror/state':
+        specifier: ^6.5.0
+        version: 6.7.6
+      '@codemirror/view':
+        specifier: ^6.43.0
+        version: 6.43.15
       '@opc-os/card-protocol':
         specifier: workspace:*
         version: link:../../packages/card-protocol
@@ -29,6 +44,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.11
         version: 5.105.0(@types/react@19.2.18)(react@19.1.0)
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.20.5
       '@types/react':
         specifier: ~19.2.0
         version: 19.2.18

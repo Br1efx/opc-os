@@ -12,8 +12,11 @@ const manifest = JSON.parse(
 );
 const context = { pluginId: "opc-core", moduleIds: boundary.modules };
 
-test("空外壳清单有效，未启用模块不能预先声明权限", () => {
+test("清单结构有效，未启用模块不能预先声明权限", () => {
   assert.deepEqual(validateManifest(manifest, context), []);
+  assert.equal(manifest.modules["m1-notes"].enabled, true);
+  assert.ok(manifest.filesystem.read.includes("**/*.md"));
+  assert.ok(manifest.modules["m1-notes"].filesystem.write.includes("**/*.markdown"));
   const opened = structuredClone(manifest);
   opened.modules["m3-gateway"].network.enabled = true;
   opened.modules["m3-gateway"].network.hosts = ["api.example.com"];
@@ -32,12 +35,23 @@ test("源码里的网络和文件 API 必须对上清单", () => {
   assert.equal(caps.usesNetwork, true);
   assert.deepEqual(caps.hosts, ["evil.example"]);
 
+  const emptyShell = structuredClone(manifest);
+  emptyShell.filesystem.read = [];
+  emptyShell.filesystem.write = [];
   const blocked = compareSources(
-    manifest,
+    emptyShell,
     [{ path: "plugins/opc-core/index.server.ts", source: 'import fs from "node:fs";\n' }],
     boundary.pluginRoot,
   );
   assert.match(blocked.join("\n"), /文件系统 API/);
+  assert.deepEqual(
+    compareSources(
+      manifest,
+      [{ path: "plugins/opc-core/server/notes-fs.ts", source: 'import fs from "node:fs/promises";\n' }],
+      boundary.pluginRoot,
+    ),
+    [],
+  );
 
   const allowed = structuredClone(manifest);
   allowed.network.enabled = true;

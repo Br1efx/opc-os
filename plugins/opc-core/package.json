@@ -2,7 +2,7 @@
   "name": "opc-core",
   "private": true,
   "version": "0.0.0",
-  "description": "一人公司操作系统核心插件外壳。含模块开关、设置和通知入口。",
+  "description": "一人公司操作系统核心插件。含模块开关、设置、通知，以及文件面板里的 Markdown 笔记。",
   "license": "MIT",
   "type": "module",
   "files": [
@@ -24,11 +24,17 @@
     "test": "node --experimental-strip-types --import ../../scripts/verify/register-ts-import.mjs --test shared/*.test.mts server/*.test.mts"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.10.0",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "^6.12.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.43.0",
     "@opc-os/card-protocol": "workspace:*"
   },
   "devDependencies": {
     "@getpaseo/plugin": "0.14.0",
     "@tanstack/react-query": "^5.90.11",
+    "@types/node": "^22.19.0",
     "@types/react": "~19.2.0",
     "react": "19.1.0",
     "react-native": "0.81.5",

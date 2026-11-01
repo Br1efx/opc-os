@@ -4,11 +4,11 @@
 
 首页「一人公司 OS」和「设置」列出这六个模块，并带开关。开关保存在主机设置 `shell` 里，默认全部打开。关掉的模块不会登记页面，也不会出现在侧栏。模块界面崩了只显示「这块坏了」。
 
-`plugins/opc-core/permissions.manifest.json` 里这六个模块的 `enabled` 仍是 false，也没有文件或网络权限。那是权限声明，不是界面上的开关。外壳自己可以联网，主机只有 `127.0.0.1`，给 M3 的 daemon 读本机 Magpie 和数据仓。清单和源码的对照见 [verify.md](verify.md)。外壳取舍见 [adr/0002](../adr/0002-d1-shell-and-cards.md)，网关取舍见 [adr/0003](../adr/0003-d4-gateway-monitor.md)。
+`plugins/opc-core/permissions.manifest.json` 里，外壳声明 Markdown 读写，并联网，主机只有 `127.0.0.1`，给 M3 的 daemon 读本机 Magpie 和数据仓。`m1-notes` 已启用，同样声明 Markdown 读写，不联网。另外五个模块的 `enabled` 仍是 false，不能预先写路径或主机。清单里的 `enabled` 是权限声明，不是界面上的开关。对照见 [verify.md](verify.md)。外壳开关见 [adr/0002](../adr/0002-d1-shell-and-cards.md)，网关见 [adr/0003](../adr/0003-d4-gateway-monitor.md)，笔记见 [adr/0004](../adr/0004-d2-notes.md)。
 
 | 模块 | 目录 | 开关标识 | 现在 |
 | --- | --- | --- | --- |
-| M1 笔记 | `plugins/opc-core/modules/m1-notes` | `m1-notes` | 只有入口 |
+| M1 笔记 | `plugins/opc-core/modules/m1-notes` | `m1-notes` | 文件面板里的 Markdown。电脑可编辑，手机只读。含批注和锁定 |
 | M2 卡片墙 / 动态看板 | `plugins/opc-core/modules/m2-card-wall` | `m2-card-wall` | 只有入口 |
 | M3 网关与监控 | `plugins/opc-core/modules/m3-gateway` | `m3-gateway` | 今日花费、路由、请求日志、供应商健康、防封只读、主机进程、成本熔断。默认是标明的模拟花费。见 [gateway.md](gateway.md) |
 | M4 任务与工作流 | `plugins/opc-core/modules/m4-tasks` | `m4-tasks` | 只有入口 |

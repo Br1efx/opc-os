@@ -2,8 +2,10 @@ import type { PluginClientContext, PluginSidebarItemProps } from "@getpaseo/plug
 import { SidebarRow } from "@getpaseo/plugin/client/ui";
 import { HomeScreen } from "./client/home";
 import { bindShellClient, disposeModuleRegistrations, useModuleRegistration } from "./client/module-host";
+import { NoteNoticeItem } from "./client/note-notice";
 import { NotificationsScreen } from "./client/notifications";
 import { SettingsHostScreen, SettingsScreen } from "./client/settings";
+import { noteNoticeDataSchema } from "./shared/notes";
 
 const HOME_SCREEN_ID = "home";
 const SETTINGS_SCREEN_ID = "settings";
@@ -75,6 +77,12 @@ export default function contribute(client: PluginClientContext) {
       id: NOTIFICATIONS_SCREEN_ID,
       title: "通知",
       Component: NotificationsItem,
+    }),
+    client.addTimelineRenderer({
+      kind: "opc-note-notice",
+      version: 1,
+      schema: noteNoticeDataSchema,
+      Component: NoteNoticeItem,
     }),
   ];
   return () => {
