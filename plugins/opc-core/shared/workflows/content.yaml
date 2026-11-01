@@ -1,0 +1,42 @@
+# 内容流。素材收成周更母本，再改编、发布、回收数据。
+id: content
+title: 内容流
+summary: 从素材卡到周更母本，再改编到各平台，发布后回收数据。
+steps:
+  - id: material
+    title: 素材卡
+    role: 素材
+    kind: seed
+    enter: start
+    instruction: 素材已经写在任务目标和验收里，接着做周更母本。
+  - id: weekly
+    title: 周更母本
+    role: 撰稿
+    kind: agent
+    enter: previous
+    agentId: writer
+    timeoutMinutes: 240
+    instruction: 把素材收成一篇周更母本，先别拆成各平台版本。
+  - id: adapt
+    title: 多平台改编
+    role: 改编
+    kind: agent
+    enter: previous
+    agentId: adapter
+    timeoutMinutes: 240
+    instruction: 把母本改成各平台能发的版本，并注明每个版本的差异。
+  - id: post
+    title: 你发布
+    role: 你
+    kind: human
+    enter: previous
+    human: true
+    instruction: 请你自己发布。发布之前不要把这一步标成完成。
+  - id: recycle
+    title: 数据回收
+    role: 数据
+    kind: agent
+    enter: previous
+    agentId: metrics
+    live: 需真机验证
+    instruction: 回收各平台的数据，分开写数据事实、原因假设和下一轮要验证的规则。平台后台需真机验证。

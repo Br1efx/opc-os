@@ -3,6 +3,7 @@ import {
   CARD_STATUSES,
   CARD_STATUS_LABELS,
   CARD_TYPE_LABELS,
+  TASK_FIELDS,
   isCardType,
   parseCard,
   type Card,
@@ -10,16 +11,70 @@ import {
   type CardType,
 } from "@opc-os/card-protocol";
 import { parseViewDocument, parseYamlSubset, queryCards, renderView, type ViewDefinition } from "./bases";
+import { scheduleCommands, renderScheduleRecord, type ScheduleCommand } from "./schedules";
+import { archiveSessions, previewCleanup, searchSessions, type TrackedSession } from "./sessions";
+import { applyTransition, readTaskMeta, runtimeFromCard, writeTaskMeta } from "./task-doc";
+import {
+  parseWorkflow,
+  planAccept,
+  planAnswer,
+  planEvidence,
+  planFailure,
+  planHumanPass,
+  planQuestion,
+  planStart,
+  planTurn,
+  type StepDelivery,
+  type Transition,
+  type Workflow,
+} from "./workflow";
 
-/** 主力机笔记库里的卡片目录。视图文件在同级 `_views`。 */
+/** 主力机笔记库里的卡片目录。视图、工作流、会话和定时任务记录都在这里。 */
 export const CARDS_ROOT = "/home/br1efx/notes/cards";
 export const VIEWS_DIR = "_views";
+export const WORKFLOWS_DIR = "_workflows";
+export const SESSIONS_DIR = "_sessions";
+export const SCHEDULES_DIR = "_schedules";
 
 /** 侧栏和页面共用的刷新间隔。短于验收要求的一分钟。 */
 export const CARD_WALL_REFRESH_MS = 15_000;
 
-/** 转成任务时留下的标记。任务流本身留给后续阶段。 */
+/** 转成任务时留下的标记。工作流接在这张卡上。 */
 export const D5_TASK_HANDOFF = "d5-task";
+
+/** 任务视图按这些步骤分列。标识要和三个模板里的步骤一致。 */
+export const TASK_STAGE_COLUMNS = [
+  { value: "", title: "未开始" },
+  { value: "demand", title: "需求" },
+  { value: "build", title: "实现" },
+  { value: "review", title: "审查" },
+  { value: "verify", title: "门禁" },
+  { value: "accept", title: "待你验收" },
+  { value: "done", title: "完成" },
+  { value: "material", title: "素材卡" },
+  { value: "weekly", title: "周更母本" },
+  { value: "adapt", title: "多平台改编" },
+  { value: "post", title: "你发布" },
+  { value: "recycle", title: "数据回收" },
+  { value: "topic", title: "选题" },
+  { value: "pitch", title: "立项" },
+  { value: "script", title: "剧本" },
+  { value: "script-review", title: "剧本挑错" },
+  { value: "script-lock", title: "剧本冻结" },
+  { value: "style", title: "风格" },
+  { value: "style-lock", title: "风格冻结" },
+  { value: "voice", title: "配音" },
+  { value: "stills", title: "关键静帧" },
+  { value: "anim", title: "动画初版" },
+  { value: "audio", title: "配乐音效" },
+  { value: "compliance", title: "合规检查" },
+  { value: "release", title: "成片放行" },
+  { value: "upload", title: "上传" },
+  { value: "publish", title: "发布" },
+  { value: "metrics", title: "数据监控" },
+  { value: "retro", title: "复盘" },
+  { value: "assets", title: "资产沉淀" },
+] as const;
 
 export const BUSINESS_LINES = ["父亲 AI 芝麻馆", "Build in Public", "插件开发"] as const;
 
@@ -33,11 +88,11 @@ export const CARD_ISSUE_LABELS = {
 } as const satisfies Record<CardIssue["code"], string>;
 
 export const PRIMARY_VIEW_IDS = ["awaiting", "status-board", "business", "timeline"] as const;
-export const PRESET_VIEW_IDS = ["inbox", "idea-wall", "pending", "reminders", "by-project"] as const;
+export const PRESET_VIEW_IDS = ["inbox", "idea-wall", "pending", "reminders", "by-project", "tasks", "stuck"] as const;
 
 const STATUS_COLUMNS = CARD_STATUSES.map((status) => ({ value: status, title: CARD_STATUS_LABELS[status] }));
 
-/** 四个主视图和五个预置视图。缺文件时由写入接口补上，已有文件不覆盖。 */
+/** 四个主视图和七个预置视图。缺文件时由写入接口补上，已有文件不覆盖。 */
 export const DEFAULT_VIEWS: readonly ViewDefinition[] = [
   {
     id: "awaiting",
@@ -124,6 +179,28 @@ export const DEFAULT_VIEWS: readonly ViewDefinition[] = [
     groupBy: "project",
     sort: [{ field: "time", direction: "desc" }],
   },
+  {
+    id: "tasks",
+    title: "任务",
+    layout: "board",
+    groupBy: "stage",
+    sort: [{ field: "time", direction: "desc" }],
+    filter: { op: "eq", field: "type", value: "task" },
+    columns: TASK_STAGE_COLUMNS.map((column) => ({ value: column.value, title: column.title })),
+  },
+  {
+    id: "stuck",
+    title: "卡住了",
+    layout: "list",
+    sort: [{ field: "time", direction: "desc" }],
+    filter: {
+      op: "and",
+      items: [
+        { op: "eq", field: "type", value: "task" },
+        { op: "gte", field: "ladderLevel", value: "1" },
+      ],
+    },
+  },
 ];
 
 export function sidebarAwaitingLabel(count: number | null): string {
@@ -191,6 +268,16 @@ export function renderCardDocument(card: Card, props: CardProps = {}, body = "")
     `time: ${yamlString(card.time)}`,
     `unread: ${card.unread ? "true" : "false"}`,
   ];
+  if (TASK_FIELDS.some((key) => card[key] !== undefined)) {
+    lines.push(`goal: ${yamlString(card.goal ?? "")}`);
+    lines.push(...yamlList("acceptance", card.acceptance ?? []));
+    lines.push(`due: ${yamlString(card.due ?? "")}`);
+    lines.push(...yamlList("dependsOn", card.dependsOn ?? []));
+    lines.push(`workflow: ${yamlString(card.workflow ?? "")}`);
+    lines.push(`stage: ${yamlString(card.stage ?? "")}`);
+    lines.push(`failCount: ${card.failCount ?? 0}`);
+    lines.push(`ladderLevel: ${card.ladderLevel ?? 0}`);
+  }
   for (const [key, value] of Object.entries(props)) {
     if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(key) || value.trim() === "") continue;
     lines.push(`${key}: ${yamlString(value)}`);
@@ -222,9 +309,13 @@ export type CardAction =
   | { action: "reject"; reason: string }
   | { action: "assign"; agentId: string }
   | { action: "to-task" }
-  | { action: "archive" };
+  | { action: "archive" }
+  | { action: "accept-task" }
+  | { action: "answer"; answer: string }
+  | { action: "add-evidence"; evidence: string }
+  | { action: "ask"; question: string };
 
-export type CardDelivery = { agentId: string; text: string };
+export type CardDelivery = { agentId: string; text: string; role: string };
 
 export type ActionResult =
   | { ok: true; card: Card; props: CardProps; delivery: CardDelivery | null; detail: string }
@@ -245,20 +336,15 @@ export function applyCardAction(card: Card, props: CardProps, action: CardAction
       ok: true,
       card: next,
       props,
-      delivery: { agentId, text: `这张卡「${card.title}」指派给你。` },
+      delivery: { agentId, text: `这张卡「${card.title}」指派给你。`, role: "" },
       detail: "已指派，正在发给 Agent",
     };
   }
   if (action.action === "to-task") {
-    return {
-      ok: true,
-      card: { ...card, type: "task", unread: false },
-      props: { ...props, handoff: D5_TASK_HANDOFF },
-      delivery: null,
-      detail: "已转成任务。工作流还没接上。",
-    };
+    return { ok: false, detail: "转成任务要走工作流" };
   }
   if (action.action === "archive") return finish(card, props, "archived", null, "已归档", false);
+  if (action.action !== "approve") return { ok: false, detail: "这张卡不在工作流里" };
   const status = card.type === "question" || card.type === "decision" ? "settled" : "active";
   const text =
     status === "settled" ? `同意。这张「${card.title}」按这个决定沉淀。` : `同意。请继续推进「${card.title}」。`;
@@ -332,18 +418,29 @@ export function cardFromTurn(input: {
   return parsed.ok ? parsed.card : null;
 }
 
+export type NamedText = { name: string; text: string };
+
 export interface CardFiles {
-  listCards(): Promise<{ name: string; text: string }[]>;
+  listCards(): Promise<NamedText[]>;
   writeCard(name: string, text: string): Promise<"ok" | "error">;
-  listViews(): Promise<{ name: string; text: string }[]>;
+  listViews(): Promise<NamedText[]>;
   writeView(name: string, text: string): Promise<"ok" | "error">;
+  listWorkflows(): Promise<NamedText[]>;
+  writeWorkflow(name: string, text: string): Promise<"ok" | "error">;
+  listSessions(): Promise<NamedText[]>;
+  writeSession(name: string, text: string): Promise<"ok" | "error">;
+  listSchedules(): Promise<NamedText[]>;
+  writeSchedule(name: string, text: string): Promise<"ok" | "error">;
 }
+
+export type WorkflowSeed = { name: string; text: string };
 
 export type CardLibrary = {
   now: string;
   root: string;
-  cards: { name: string; text: string }[];
-  views: { name: string; text: string }[];
+  cards: NamedText[];
+  views: NamedText[];
+  workflows: NamedText[];
 };
 
 export type LibraryCard = {
@@ -400,7 +497,7 @@ export function readLibrary(library: CardLibrary): LibraryReading {
 
 export type WriteCardResult = { ok: true; id: string; detail: string } | { ok: false; id: string; detail: string };
 
-export function createCardStore(files: CardFiles, root = CARDS_ROOT) {
+export function createCardStore(files: CardFiles, root = CARDS_ROOT, seeds: readonly WorkflowSeed[] = []) {
   async function ensureViews(): Promise<void> {
     const existing = await files.listViews();
     const ids = new Set<string>();
@@ -412,6 +509,68 @@ export function createCardStore(files: CardFiles, root = CARDS_ROOT) {
       if (ids.has(view.id)) continue;
       await files.writeView(`${view.id}.yaml`, renderView(view));
     }
+  }
+
+  async function ensureWorkflows(): Promise<void> {
+    const existing = await files.listWorkflows();
+    const ids = new Set<string>();
+    for (const file of existing) {
+      const parsed = parseWorkflow(file.text);
+      if (parsed.ok) ids.add(parsed.workflow.id);
+    }
+    for (const seed of seeds) {
+      const parsed = parseWorkflow(seed.text);
+      if (!parsed.ok || ids.has(parsed.workflow.id)) continue;
+      const name = fileNameOf(parsed.workflow.id, "yaml");
+      if (!name) continue;
+      await files.writeWorkflow(name, seed.text);
+      ids.add(parsed.workflow.id);
+    }
+  }
+
+  async function workflows(): Promise<{ workflows: Workflow[]; errors: { name: string; detail: string }[] }> {
+    await ensureWorkflows();
+    const workflows: Workflow[] = [];
+    const errors: { name: string; detail: string }[] = [];
+    for (const file of await files.listWorkflows()) {
+      const parsed = parseWorkflow(file.text);
+      if (!parsed.ok) errors.push({ name: file.name, detail: parsed.detail });
+      else workflows.push(parsed.workflow);
+    }
+    return { workflows, errors };
+  }
+
+  async function workflowById(id: string): Promise<Workflow | null> {
+    const loaded = await workflows();
+    return loaded.workflows.find((item) => item.id === id) ?? null;
+  }
+
+  function persist(found: LibraryCard, transition: Transition): Promise<{ ok: boolean; detail: string; delivery: CardDelivery | null }> {
+    if (!transition.write) return Promise.resolve({ ok: transition.ok, detail: transition.detail, delivery: null });
+    const card = applyTransition(found.card, transition);
+    const body = writeTaskMeta(readTaskMeta(found.body).prose, transition.runtime.meta);
+    return put(card, found.props, body, found.name).then((written) => {
+      if (!written.ok) return { ok: false, detail: written.detail, delivery: null };
+      return { ok: transition.ok, detail: transition.detail, delivery: toDelivery(transition.delivery) };
+    });
+  }
+
+  async function writeDecision(found: LibraryCard, transition: Transition, now: string): Promise<void> {
+    if (!transition.decision) return;
+    const card: Card = {
+      id: createCardId("decision", now, `${found.card.id}-ladder`),
+      type: "decision",
+      status: "inbox",
+      title: transition.decision.title.slice(0, 80),
+      oneLiner: transition.decision.oneLiner,
+      owner: { kind: "person", id: "人" },
+      source: "ladder",
+      evidence: [],
+      related: [found.card.id],
+      time: now,
+      unread: true,
+    };
+    await put(card, { handoff: "ladder" }, "", null);
   }
 
   async function put(card: Card, props: CardProps, body: string, fileName: string | null): Promise<WriteCardResult> {
@@ -431,7 +590,184 @@ export function createCardStore(files: CardFiles, root = CARDS_ROOT) {
     },
     async load(now: string): Promise<CardLibrary> {
       await ensureViews();
-      return { now, root, cards: await files.listCards(), views: await files.listViews() };
+      await ensureWorkflows();
+      return {
+        now,
+        root,
+        cards: await files.listCards(),
+        views: await files.listViews(),
+        workflows: await files.listWorkflows(),
+      };
+    },
+    workflows,
+    async startFromTemplate(input: {
+      templateId: string;
+      title: string;
+      goal: string;
+      acceptance: readonly string[];
+      due: string;
+      dependsOn: readonly string[];
+      project: string;
+      now: string;
+      nonce: string;
+      settled?: readonly string[];
+    }): Promise<{ ok: boolean; detail: string; id: string; delivery: CardDelivery | null }> {
+      const workflow = await workflowById(input.templateId);
+      if (!workflow) return { ok: false, detail: "没有这个模板", id: "", delivery: null };
+      const settled =
+        input.settled ??
+        readLibrary(await this.load(input.now))
+          .valid.filter((item) => item.card.status === "settled")
+          .map((item) => item.card.id);
+      const planned = planStart(workflow, { ...input, settled });
+      if (!planned.write) return { ok: false, detail: planned.detail, id: "", delivery: null };
+      const built = cardFromManual({
+        title: input.title,
+        oneLiner: input.goal || planned.runtime.goal,
+        type: "task",
+        project: input.project,
+        now: input.now,
+        nonce: input.nonce,
+      });
+      if (!built.ok) return { ok: false, detail: built.detail, id: "", delivery: null };
+      const card = applyTransition({ ...built.card, evidence: [] }, planned);
+      const props = { ...built.props, handoff: D5_TASK_HANDOFF };
+      const written = await put(card, props, writeTaskMeta("", planned.runtime.meta), null);
+      if (!written.ok) return { ok: false, detail: written.detail, id: written.id, delivery: null };
+      return { ok: planned.ok, detail: planned.detail, id: written.id, delivery: toDelivery(planned.delivery) };
+    },
+    async schedules(): Promise<ScheduleCommand[]> {
+      return scheduleCommands();
+    },
+    async createSchedule(input: { id: string; now: string }): Promise<{ ok: boolean; detail: string; command: string; enabled: false }> {
+      const command = scheduleCommands().find((item) => item.id === input.id);
+      if (!command) return { ok: false, detail: "没有这个定时模板", command: "", enabled: false };
+      const name = fileNameOf(command.id, "md");
+      if (!name) return { ok: false, detail: "定时模板标识无效", command: "", enabled: false };
+      const existing = await files.listSchedules();
+      if (existing.some((file) => file.name === name)) {
+        return { ok: true, detail: "已经有这条，仍未启用", command: command.command, enabled: false };
+      }
+      const written = await files.writeSchedule(name, renderScheduleRecord(command, input.now));
+      if (written !== "ok") return { ok: false, detail: "定时记录没有写进目录", command: command.command, enabled: false };
+      return { ok: true, detail: "已生成命令，未启用", command: command.command, enabled: false };
+    },
+    async sessions(query: string, now: string): Promise<{ sessions: TrackedSession[]; preview: { id: string; title: string; reason: string }[] }> {
+      const sessions = (await files.listSessions()).flatMap((file) => {
+        const parsed = parseSession(file.text);
+        return parsed ? [parsed] : [];
+      });
+      return { sessions: searchSessions(sessions, query), preview: previewCleanup(sessions, now) };
+    },
+    async recordSessions(input: { sessions: TrackedSession[]; now: string }): Promise<{ ok: boolean; detail: string }> {
+      for (const session of input.sessions) {
+        const name = fileNameOf(session.id, "md");
+        if (!name) continue;
+        const written = await files.writeSession(name, renderSession(session));
+        if (written !== "ok") return { ok: false, detail: "会话记录没有写进目录" };
+      }
+      return { ok: true, detail: "已记下会话" };
+    },
+    async archiveTracked(input: { ids: string[]; now: string }): Promise<{ ok: boolean; detail: string; sessions: TrackedSession[] }> {
+      const current = (await files.listSessions()).flatMap((file) => {
+        const parsed = parseSession(file.text);
+        return parsed ? [parsed] : [];
+      });
+      const next = archiveSessions(current, input.ids, input.now);
+      if (next.length !== current.length) return { ok: false, detail: "归档不能减少会话", sessions: current };
+      for (const session of next) {
+        if (!input.ids.includes(session.id)) continue;
+        const name = fileNameOf(session.id, "md");
+        if (!name) continue;
+        const written = await files.writeSession(name, renderSession(session));
+        if (written !== "ok") return { ok: false, detail: "会话没有归档", sessions: current };
+      }
+      return { ok: true, detail: "已归档，没有删除", sessions: next };
+    },
+    async consumeTurn(input: {
+      agentId: string;
+      outcome: "completed" | "failed" | "canceled";
+      evidence?: readonly string[];
+      note?: string;
+      now: string;
+    }): Promise<{ ok: boolean; detail: string; delivery: CardDelivery | null; decisionId: string; taskId: string }> {
+      const found = await taskForAgent(input.agentId, input.now);
+      if (!found) return { ok: false, detail: "没有对应的任务", delivery: null, decisionId: "", taskId: "" };
+      const meta = readTaskMeta(found.body).meta;
+      if (meta.holdTurn === "fail") {
+        meta.holdTurn = "";
+        const written = await put(found.card, found.props, writeTaskMeta(readTaskMeta(found.body).prose, meta), found.name);
+        return {
+          ok: written.ok,
+          detail: written.ok ? "失败已经记过" : written.detail,
+          delivery: null,
+          decisionId: "",
+          taskId: found.card.id,
+        };
+      }
+      const workflow = await workflowById(found.card.workflow ?? "");
+      if (!workflow) return { ok: false, detail: "任务的模板读不懂", delivery: null, decisionId: "", taskId: found.card.id };
+      if (input.outcome === "completed" && meta.questionId) {
+        return { ok: true, detail: "等你回答", delivery: null, decisionId: "", taskId: found.card.id };
+      }
+      const planned = planTurn(workflow, runtimeFromCard(found.card, meta), input);
+      const saved = await persist(found, planned);
+      let decisionId = "";
+      if (planned.decision && planned.write) {
+        decisionId = createCardId("decision", input.now, `${found.card.id}-ladder`);
+        await writeDecision(found, planned, input.now);
+      }
+      return { ok: saved.ok, detail: saved.detail, delivery: saved.delivery, decisionId, taskId: found.card.id };
+    },
+    async reportFromAgent(input: {
+      agentId: string;
+      kind: "fail" | "evidence" | "ask";
+      text: string;
+      now: string;
+    }): Promise<{ ok: boolean; detail: string }> {
+      const found = await taskForAgent(input.agentId, input.now);
+      if (!found) return { ok: false, detail: "没有对应的任务" };
+      const workflow = await workflowById(found.card.workflow ?? "");
+      if (!workflow) return { ok: false, detail: "任务的模板读不懂" };
+      const runtime = runtimeFromCard(found.card, readTaskMeta(found.body).meta);
+      const planned =
+        input.kind === "fail"
+          ? planFailure(workflow, runtime, input.text, input.now)
+          : input.kind === "evidence"
+            ? planEvidence(runtime, [input.text], input.now)
+            : planQuestion(runtime, input.text, input.now);
+      if (input.kind === "fail") planned.runtime.meta.holdTurn = "fail";
+      const saved = await persist(found, planned);
+      if (planned.decision && planned.write) await writeDecision(found, planned, input.now);
+      return { ok: saved.ok, detail: saved.detail };
+    },
+    async holdDelivery(input: {
+      id: string;
+      agentId: string;
+      text: string;
+      clear: boolean;
+      now: string;
+    }): Promise<{ ok: boolean; detail: string }> {
+      const library = await this.load(input.now);
+      const found = readLibrary(library).valid.find((item) => item.card.id === input.id);
+      if (!found) return { ok: false, detail: "没有这张卡" };
+      const read = readTaskMeta(found.body);
+      const meta = read.meta;
+      meta.pendingAgent = input.clear ? "" : input.agentId;
+      meta.pendingText = input.clear ? "" : input.text;
+      const written = await put(found.card, found.props, writeTaskMeta(read.prose, meta), found.name);
+      if (!written.ok) return { ok: false, detail: written.detail };
+      return { ok: true, detail: input.clear ? "已清掉待发送" : "已记下待发送" };
+    },
+    async convertTypeOnly(input: { id: string; now: string }): Promise<{ ok: boolean; detail: string; delivery: null }> {
+      const library = await this.load(input.now);
+      const found = readLibrary(library).valid.find((item) => item.card.id === input.id);
+      if (!found) return { ok: false, detail: "没有这张卡", delivery: null };
+      if (found.card.workflow) return { ok: false, detail: "这张卡已经在工作流里", delivery: null };
+      const card = { ...found.card, type: "task" as const };
+      const written = await put(card, { ...found.props, handoff: D5_TASK_HANDOFF }, found.body, found.name);
+      if (!written.ok) return { ok: false, detail: written.detail, delivery: null };
+      return { ok: true, detail: "已改成任务。工作流已关闭。", delivery: null };
     },
     async createManual(input: {
       title: string;
@@ -469,6 +805,10 @@ export function createCardStore(files: CardFiles, root = CARDS_ROOT) {
       const reading = readLibrary(library);
       const found = reading.valid.find((item) => item.card.id === input.id);
       if (!found) return { ok: false, detail: "没有这张卡", delivery: null };
+      if (input.action.action === "to-task" || found.card.workflow) {
+        const special = await actOnTask(found, input.action, input.now);
+        if (special) return special;
+      }
       const applied = applyCardAction(found.card, found.props, input.action);
       if (!applied.ok) return { ok: false, detail: applied.detail, delivery: null };
       const written = await put(applied.card, applied.props, found.body, found.name);
@@ -476,15 +816,142 @@ export function createCardStore(files: CardFiles, root = CARDS_ROOT) {
       return { ok: true, detail: applied.detail, delivery: applied.delivery };
     },
   };
+
+  async function taskForAgent(agentId: string, now: string): Promise<LibraryCard | null> {
+    await ensureViews();
+    const reading = readLibrary({
+      now,
+      root,
+      cards: await files.listCards(),
+      views: await files.listViews(),
+      workflows: await files.listWorkflows(),
+    });
+    const tasks = reading.valid.filter((item) => item.card.type === "task");
+    const direct = tasks.find((item) => ownsAgent(item, agentId));
+    if (direct) return direct;
+    const loaded = await workflows();
+    return (
+      tasks.find((item) => {
+        if ((item.card.ladderLevel ?? 0) >= 1) return false;
+        const workflow = loaded.workflows.find((entry) => entry.id === item.card.workflow);
+        return workflow?.steps.find((step) => step.id === item.card.stage)?.agentId === agentId;
+      }) ?? null
+    );
+  }
+
+  async function actOnTask(
+    found: LibraryCard,
+    action: CardAction,
+    now: string,
+  ): Promise<{ ok: boolean; detail: string; delivery: CardDelivery | null } | null> {
+    if (action.action === "to-task") {
+      if (found.card.workflow) return { ok: false, detail: "这张卡已经在工作流里", delivery: null };
+      const workflow = await workflowById("dev");
+      if (!workflow) return { ok: false, detail: "没有开发流模板", delivery: null };
+      const planned = planStart(workflow, {
+        title: found.card.title,
+        goal: found.card.oneLiner || found.card.title,
+        acceptance: [],
+        due: "",
+        dependsOn: [],
+        now,
+      });
+      if (!planned.write) return { ok: false, detail: planned.detail, delivery: null };
+      const card = applyTransition({ ...found.card, type: "task" }, planned);
+      const props = { ...found.props, handoff: D5_TASK_HANDOFF };
+      const written = await put(card, props, writeTaskMeta(readTaskMeta(found.body).prose, planned.runtime.meta), found.name);
+      if (!written.ok) return { ok: false, detail: written.detail, delivery: null };
+      return { ok: true, detail: planned.detail, delivery: toDelivery(planned.delivery) };
+    }
+    if (!found.card.workflow) return null;
+    const workflow = await workflowById(found.card.workflow);
+    if (!workflow) return { ok: false, detail: "任务的模板读不懂", delivery: null };
+    const runtime = runtimeFromCard(found.card, readTaskMeta(found.body).meta);
+    if (action.action === "reject") {
+      if (action.reason.trim() === "") return { ok: false, detail: "打回要写理由", delivery: null };
+      return persist(found, planFailure(workflow, runtime, action.reason, now));
+    }
+    if (action.action === "approve" || action.action === "accept-task") {
+      const planned = action.action === "accept-task" ? planAccept(workflow, runtime, now) : planHumanPass(workflow, runtime, now);
+      const saved = await persist(found, planned);
+      return saved;
+    }
+    if (action.action === "add-evidence") return persist(found, planEvidence(runtime, [action.evidence], now));
+    if (action.action === "ask") {
+      const planned = planQuestion(runtime, action.question, now);
+      if (planned.ok) planned.runtime.meta.holdTurn = "";
+      return persist(found, planned);
+    }
+    if (action.action === "answer") return persist(found, planAnswer(runtime, action.answer, now));
+    if (action.action === "archive" || action.action === "assign") return null;
+    return null;
+  }
 }
 
-export function actionFromFields(input: { action: string; reason: string; agentId: string }): CardAction | null {
+export function actionFromFields(input: {
+  action: string;
+  reason: string;
+  agentId: string;
+  evidence?: string;
+  answer?: string;
+  question?: string;
+}): CardAction | null {
   if (input.action === "approve") return { action: "approve" };
   if (input.action === "reject") return { action: "reject", reason: input.reason };
   if (input.action === "assign") return { action: "assign", agentId: input.agentId };
   if (input.action === "to-task") return { action: "to-task" };
   if (input.action === "archive") return { action: "archive" };
+  if (input.action === "accept-task") return { action: "accept-task" };
+  if (input.action === "add-evidence") return { action: "add-evidence", evidence: input.evidence ?? "" };
+  if (input.action === "answer") return { action: "answer", answer: input.answer ?? "" };
+  if (input.action === "ask") return { action: "ask", question: input.question ?? "" };
   return null;
+}
+
+function toDelivery(delivery: StepDelivery | null): CardDelivery | null {
+  if (!delivery) return null;
+  return { agentId: delivery.agentId, text: delivery.text, role: delivery.role };
+}
+
+function ownsAgent(item: LibraryCard, agentId: string): boolean {
+  if (item.card.owner.kind === "agent" && item.card.owner.id === agentId) return true;
+  return readTaskMeta(item.body).meta.pendingAgent === agentId;
+}
+
+function fileNameOf(id: string, ext: "md" | "yaml"): string | null {
+  const pattern = ext === "yaml" ? /^[a-z][a-z0-9-]{0,40}$/ : /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/;
+  if (!pattern.test(id)) return null;
+  return `${id}.${ext}`;
+}
+
+function renderSession(session: TrackedSession): string {
+  return [
+    "---",
+    `id: ${session.id}`,
+    `title: ${yamlString(session.title)}`,
+    `kind: ${session.kind}`,
+    `updatedAt: ${yamlString(session.updatedAt)}`,
+    `archived: ${session.archived ? "true" : "false"}`,
+    "---",
+    session.archived ? "已归档。没有删除。\n" : "仍在列表里。\n",
+  ].join("\n");
+}
+
+function parseSession(text: string): TrackedSession | null {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text.replace(/^\uFEFF/, ""));
+  if (!match) return null;
+  const yaml = parseYamlSubset(match[1] ?? "");
+  if (!yaml.ok || !isRecord(yaml.value)) return null;
+  const value = yaml.value;
+  if (typeof value.id !== "string" || typeof value.title !== "string" || typeof value.updatedAt !== "string") return null;
+  if (value.kind !== "agent" && value.kind !== "schedule") return null;
+  return {
+    id: value.id,
+    title: value.title,
+    kind: value.kind,
+    updatedAt: value.updatedAt,
+    archived: value.archived === true || value.archived === "true",
+  };
 }
 
 function finish(
@@ -501,7 +968,7 @@ function finish(
 
 function deliveryFor(card: Card, text: string): CardDelivery | null {
   if (card.owner.kind !== "agent" || card.owner.id.trim() === "") return null;
-  return { agentId: card.owner.id, text };
+  return { agentId: card.owner.id, text, role: "" };
 }
 
 function orderViews(views: ViewDefinition[]): ViewDefinition[] {
@@ -517,7 +984,7 @@ function orderViews(views: ViewDefinition[]): ViewDefinition[] {
 function stringProps(value: Record<string, unknown>): CardProps {
   const props: CardProps = {};
   for (const [key, item] of Object.entries(value)) {
-    if ((CARD_FIELDS as readonly string[]).includes(key)) continue;
+    if ((CARD_FIELDS as readonly string[]).includes(key) || (TASK_FIELDS as readonly string[]).includes(key)) continue;
     if (typeof item === "string" && item.trim() !== "") props[key] = item;
   }
   return props;

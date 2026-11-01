@@ -59,7 +59,7 @@
 
 ## 权限清单
 
-`plugins/opc-core/permissions.manifest.json` 里，外壳和已启用的 `m1-notes` 声明 `**/*.md` 与 `**/*.markdown` 的读写。外壳联网打开，主机只有 `127.0.0.1`，给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。`m1-notes` 不联网。`m2-card-wall` 已启用，读写只声明 `/home/br1efx/notes/cards/` 和 `/home/br1efx/notes/cards/_views/`，不联网。另外四个模块 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
+`plugins/opc-core/permissions.manifest.json` 里，外壳和已启用的 `m1-notes` 声明 `**/*.md` 与 `**/*.markdown` 的读写。外壳联网打开，主机只有 `127.0.0.1`，给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。`m1-notes` 不联网。`m2-card-wall` 已启用，读写只声明 `/home/br1efx/notes/cards/` 和 `/home/br1efx/notes/cards/_views/`，不联网。`m4-tasks` 已启用，读写声明 `/home/br1efx/notes/cards/` 以及 `_workflows/`、`_sessions/`、`_schedules/`，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 仍是 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
 
 对照方式：
 

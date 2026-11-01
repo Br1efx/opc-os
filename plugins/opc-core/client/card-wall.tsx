@@ -5,7 +5,7 @@ import { CARD_TYPES, type CardType } from "@opc-os/card-protocol";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { queryCards, type QueryGroup, type ViewDefinition } from "../shared/bases";
-import { actCardRpc, createCardRpc, listCardsRpc } from "../shared/cards-rpc";
+import { actCardRpc, createCardRpc, holdDeliveryRpc, listCardsRpc } from "../shared/cards-rpc";
 import {
   BUSINESS_LINES,
   CARD_WALL_REFRESH_MS,
@@ -20,6 +20,10 @@ import {
   type LibraryCard,
   type LibraryReading,
 } from "../shared/cards";
+import { readTaskMeta, runtimeFromCard } from "../shared/task-doc";
+import { parseWorkflow, progressOf, stageTitle, type Workflow } from "../shared/workflow";
+import { deliverRole } from "./dispatch";
+import { StartTaskForm } from "./task-start";
 
 const listeners = new Set<() => void>();
 
@@ -90,15 +94,18 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
   const list = useRpc(listCardsRpc);
   const create = useRpc(createCardRpc);
   const act = useRpc(actCardRpc);
+  const hold = useRpc(holdDeliveryRpc);
   const paseo = usePaseo();
   const listRef = useRef(list);
   listRef.current = list;
   const [tick, setTick] = useState(0);
   const [reading, setReading] = useState<LibraryReading | null>(null);
+  const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [viewId, setViewId] = useState("awaiting");
   const [formOpen, setFormOpen] = useState(false);
+  const [taskOpen, setTaskOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [oneLiner, setOneLiner] = useState("");
   const [type, setType] = useState<CardType>("task");
@@ -113,6 +120,12 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
         .then((library) => {
           if (!live) return;
           setReading(readLibrary(library));
+          setWorkflows(
+            library.workflows.flatMap((file) => {
+              const parsed = parseWorkflow(file.text);
+              return parsed.ok ? [parsed.workflow] : [];
+            }),
+          );
           setError("");
         })
         .catch((cause: unknown) => {
@@ -170,11 +183,29 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
       action: action.action,
       reason: action.action === "reject" ? action.reason : "",
       agentId: action.action === "assign" ? action.agentId : "",
+      evidence: action.action === "add-evidence" ? action.evidence : "",
+      answer: action.action === "answer" ? action.answer : "",
+      question: action.action === "ask" ? action.question : "",
       now: new Date().toISOString(),
     });
     if (!result.ok || !result.delivery) {
       setNotice(result.detail);
       if (result.ok) refresh();
+      return;
+    }
+    if (result.delivery.role) {
+      const sent = await deliverRole(paseo, result.delivery);
+      if (!sent.ok) {
+        await hold({
+          id,
+          agentId: result.delivery.agentId,
+          text: result.delivery.text,
+          clear: false,
+          now: new Date().toISOString(),
+        }).catch(() => undefined);
+      }
+      setNotice(sent.ok ? sent.detail : `${result.detail}。${sent.detail}`);
+      refresh();
       return;
     }
     try {
@@ -183,6 +214,15 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
     } catch (cause) {
       setNotice(`卡片已更新，但没有送到 Agent。${messageOf(cause)}`);
     }
+    refresh();
+  }
+
+  async function resend(id: string, agentId: string, text: string, role: string) {
+    const sent = await deliverRole(paseo, { agentId, role, text });
+    if (sent.ok) {
+      await hold({ id, agentId, text, clear: true, now: new Date().toISOString() }).catch(() => undefined);
+    }
+    setNotice(sent.detail);
     refresh();
   }
 
@@ -210,6 +250,23 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
       <Pressable accessibilityRole="button" onPress={() => setFormOpen((value) => !value)}>
         <Text style={styles.action}>{formOpen ? "收起新建" : "新建卡片"}</Text>
       </Pressable>
+      <Pressable accessibilityRole="button" onPress={() => setTaskOpen((value) => !value)}>
+        <Text style={styles.action}>{taskOpen ? "收起模板" : "从模板起任务"}</Text>
+      </Pressable>
+      {taskOpen ? (
+        <StartTaskForm
+          accent={theme.colors.accent}
+          border={theme.colors.border}
+          foreground={theme.colors.foreground}
+          muted={theme.colors.foregroundMuted}
+          onDone={(detail) => {
+            setNotice(detail);
+            refresh();
+          }}
+          theme={theme}
+          workflows={workflows}
+        />
+      ) : null}
       {formOpen ? (
         <View style={styles.block}>
           <TextInput
@@ -260,11 +317,14 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
           byId={byId}
           compact={compact}
           invalid={reading.invalid}
+          now={reading.now}
           onAct={onAct}
+          onResend={resend}
           queriedGroups={queried.groups}
           styles={styles}
           theme={theme}
           view={selected}
+          workflows={workflows}
         />
       ) : null}
     </ScrollView>
@@ -279,7 +339,10 @@ function Wall({
   compact,
   styles,
   theme,
+  now,
+  workflows,
   onAct,
+  onResend,
 }: {
   view: ViewDefinition;
   queriedGroups: QueryGroup[];
@@ -288,7 +351,10 @@ function Wall({
   compact: boolean;
   styles: CardStyles;
   theme: PluginScreenProps["theme"];
+  now: string;
+  workflows: readonly Workflow[];
   onAct: (id: string, action: CardAction) => Promise<void>;
+  onResend: (id: string, agentId: string, text: string, role: string) => Promise<void>;
 }) {
   const grouped = Boolean(view.groupBy);
   const horizontal = !compact && (view.layout === "board" || view.layout === "columns");
@@ -314,10 +380,13 @@ function Wall({
                 key={item.card.id}
                 card={item}
                 compact={compact}
+                now={now}
                 onAct={onAct}
+                onResend={onResend}
                 styles={styles}
                 theme={theme}
                 timeline={view.layout === "timeline"}
+                workflows={workflows}
               />
             ))}
           </View>
@@ -357,19 +426,32 @@ function CardFace({
   compact,
   styles,
   theme,
+  now,
+  workflows,
   onAct,
+  onResend,
 }: {
   card: LibraryCard;
   timeline: boolean;
   compact: boolean;
   styles: CardStyles;
   theme: PluginScreenProps["theme"];
+  now: string;
+  workflows: readonly Workflow[];
   onAct: (id: string, action: CardAction) => Promise<void>;
+  onResend: (id: string, agentId: string, text: string, role: string) => Promise<void>;
 }) {
   const [reason, setReason] = useState("");
   const [agentId, setAgentId] = useState("");
+  const [evidence, setEvidence] = useState("");
+  const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
   const project = card.props.project ?? "";
+  const workflow = workflows.find((item) => item.id === card.card.workflow) ?? null;
+  const meta = readTaskMeta(card.body).meta;
+  const step = workflow?.steps.find((item) => item.id === card.card.stage);
+  const progress = workflow ? progressOf(workflow, runtimeFromCard(card.card, meta), now) : null;
+  const who = step?.role ? `负责 ${step.role}` : ownerLabel(card.card.owner);
 
   async function run(action: CardAction) {
     if (busy) return;
@@ -392,15 +474,77 @@ function CardFace({
       </Text>
       {card.card.oneLiner ? <Text style={styles.detail}>{card.card.oneLiner}</Text> : null}
       <Text style={styles.detail}>
-        {ownerLabel(card.card.owner)} · {formatCardTime(card.card.time)}
+        {who} · {formatCardTime(card.card.time)}
       </Text>
+      {card.card.workflow ? (
+        <View>
+          <Text style={styles.detail}>步骤：{stageTitle(workflow, card.card.stage ?? "")}</Text>
+          {progress ? (
+            <View>
+              <Text style={styles.detail}>{progress.label}</Text>
+              <View style={styles.track}>
+                <View style={[styles.bar, { width: `${Math.round(progress.ratio * 100)}%` }]} />
+              </View>
+              {progress.blockers.map((item) => (
+                <Text key={item} style={styles.alert}>
+                  {item}
+                </Text>
+              ))}
+              {progress.question ? <Text style={styles.detail}>问你：{progress.question.question}</Text> : null}
+            </View>
+          ) : null}
+          {(card.card.ladderLevel ?? 0) >= 1 ? <Text style={styles.alert}>卡住了</Text> : null}
+          {meta.timeline.slice(-4).map((item) => (
+            <Text key={`${item.at}-${item.text}`} style={styles.detail}>
+              {item.text}
+            </Text>
+          ))}
+        </View>
+      ) : null}
       <View style={compact ? styles.stack : styles.actions}>
         <Hit label="同意" disabled={busy} onPress={() => void run({ action: "approve" })} styles={styles} />
         <Hit label="打回" disabled={busy} onPress={() => void run({ action: "reject", reason })} styles={styles} />
         <Hit label="指派" disabled={busy} onPress={() => void run({ action: "assign", agentId })} styles={styles} />
         <Hit label="转成任务" disabled={busy} onPress={() => void run({ action: "to-task" })} styles={styles} />
+        {step?.kind === "accept" ? (
+          <Hit label="验收" disabled={busy} onPress={() => void run({ action: "accept-task" })} styles={styles} />
+        ) : null}
+        {card.card.workflow ? (
+          <Hit label="记下证据" disabled={busy} onPress={() => void run({ action: "add-evidence", evidence })} styles={styles} />
+        ) : null}
+        {progress?.question ? (
+          <Hit label="回答" disabled={busy} onPress={() => void run({ action: "answer", answer })} styles={styles} />
+        ) : null}
+        {meta.pendingAgent && meta.pendingText ? (
+          <Hit
+            label="再送一次"
+            disabled={busy}
+            onPress={() => void onResend(card.card.id, meta.pendingAgent, meta.pendingText, step?.role ?? "负责人")}
+            styles={styles}
+          />
+        ) : null}
         <Hit label="归档" disabled={busy} onPress={() => void run({ action: "archive" })} styles={styles} />
       </View>
+      {card.card.workflow ? (
+        <TextInput
+          accessibilityLabel="证据"
+          onChangeText={setEvidence}
+          placeholder="证据链接或说明"
+          placeholderTextColor={theme.colors.foregroundMuted}
+          style={styles.input}
+          value={evidence}
+        />
+      ) : null}
+      {progress?.question ? (
+        <TextInput
+          accessibilityLabel="回答"
+          onChangeText={setAnswer}
+          placeholder="回答这一个问题"
+          placeholderTextColor={theme.colors.foregroundMuted}
+          style={styles.input}
+          value={answer}
+        />
+      ) : null}
       <TextInput
         accessibilityLabel="打回理由"
         onChangeText={setReason}
@@ -469,6 +613,8 @@ function useCardStyles(theme: PluginScreenProps["theme"], compact: boolean) {
       wrap: { flexDirection: "row" as const, flexWrap: "wrap" as const },
       actions: { flexDirection: "row" as const, flexWrap: "wrap" as const },
       hit: { minHeight: 44, justifyContent: "center" as const, marginRight: 16 },
+      track: { height: 6, marginTop: 8, backgroundColor: theme.colors.border },
+      bar: { height: 6, backgroundColor: theme.colors.accent },
       input: {
         color: theme.colors.foreground,
         borderColor: theme.colors.border,

@@ -9,7 +9,7 @@ import { parseCard, type CardIssue } from "@opc-os/card-protocol";
 export type Yaml = string | boolean | null | Yaml[] | { [key: string]: Yaml };
 
 export type FieldFilter =
-  | { op: "eq" | "neq" | "contains"; field: string; value: string }
+  | { op: "eq" | "neq" | "contains" | "gte"; field: string; value: string }
   | { op: "empty"; field: string }
   | { op: "dateRange"; field: string; from?: string; to?: string };
 
@@ -200,6 +200,8 @@ function matches(record: unknown, filter: FilterNode | undefined, now: string | 
       return !equals(fieldValue(record, filter.field), filter.value);
     case "contains":
       return contains(fieldValue(record, filter.field), filter.value);
+    case "gte":
+      return greaterOrEqual(fieldValue(record, filter.field), filter.value);
     case "dateRange":
       return inDateRange(fieldValue(record, filter.field), filter.from, filter.to, now);
     default: {
@@ -221,6 +223,13 @@ function equals(actual: unknown, expected: string): boolean {
   if (typeof actual === "boolean" || typeof actual === "number") return String(actual) === expected;
   if (Array.isArray(actual)) return actual.some((item) => equals(item, expected));
   return actual === expected;
+}
+
+function greaterOrEqual(actual: unknown, expected: string): boolean {
+  const right = Number(expected);
+  if (!Number.isFinite(right)) return false;
+  const left = typeof actual === "number" ? actual : typeof actual === "string" && /^(?:0|[1-9][0-9]*)$/.test(actual) ? Number(actual) : Number.NaN;
+  return Number.isFinite(left) && left >= right;
 }
 
 function contains(actual: unknown, expected: string): boolean {
@@ -338,7 +347,7 @@ function parseFilter(value: unknown): { ok: true; filter: FilterNode } | { ok: f
     }
     return { ok: true, filter };
   }
-  if (value.op === "eq" || value.op === "neq" || value.op === "contains") {
+  if (value.op === "eq" || value.op === "neq" || value.op === "contains" || value.op === "gte") {
     if (typeof value.field !== "string" || value.field.trim() === "") return { ok: false, detail: "筛选要写字段" };
     if (typeof value.value !== "string") return { ok: false, detail: "筛选的比较值必须是文本" };
     return { ok: true, filter: { op: value.op, field: value.field, value: value.value } };
@@ -375,6 +384,7 @@ function filterToPlain(filter: FilterNode): Yaml {
     case "eq":
     case "neq":
     case "contains":
+    case "gte":
       return { op: filter.op, field: filter.field, value: filter.value };
     default: {
       const unreachable: never = filter;

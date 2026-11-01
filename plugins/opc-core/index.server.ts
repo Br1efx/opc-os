@@ -7,7 +7,7 @@ import { shellSettings } from "./shared/shell";
 
 /**
  * 外壳的服务端入口。
- * 登记主机级设置，挂上网关快照、笔记，以及卡片墙的读写和回合结束写卡。
+ * 登记主机级设置，挂上网关快照、笔记，以及卡片墙、任务工作流和回合结束推进。
  * 引用 card-protocol，是为了让插件编译器必须解析共享包。
  */
 export default function contribute(server: PluginServerContext) {

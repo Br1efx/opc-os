@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { SECTION12_CARD_TYPES } from "@opc-os/card-protocol";
 import { parseViewDocument, queryCards, renderView } from "./bases.ts";
 import {
@@ -26,28 +28,52 @@ import {
 
 const now = "2026-11-01T08:00:00.000Z";
 
-function memory(): CardFiles & { cards: Map<string, string>; views: Map<string, string> } {
+function bucket(map: Map<string, string>) {
+  return {
+    async list() {
+      return [...map].map(([name, text]) => ({ name, text }));
+    },
+    async write(name: string, text: string) {
+      if (name.includes("/") || name.includes("..")) return "error" as const;
+      map.set(name, text);
+      return "ok" as const;
+    },
+  };
+}
+
+function memory(): CardFiles & { cards: Map<string, string>; views: Map<string, string>; workflows: Map<string, string> } {
   const cards = new Map<string, string>();
   const views = new Map<string, string>();
+  const workflows = new Map<string, string>();
+  const sessions = new Map<string, string>();
+  const schedules = new Map<string, string>();
+  const cardIo = bucket(cards);
+  const viewIo = bucket(views);
+  const workflowIo = bucket(workflows);
+  const sessionIo = bucket(sessions);
+  const scheduleIo = bucket(schedules);
   return {
     cards,
     views,
-    async listCards() {
-      return [...cards].map(([name, text]) => ({ name, text }));
-    },
-    async writeCard(name, text) {
-      if (name.includes("/") || name.includes("..")) return "error";
-      cards.set(name, text);
-      return "ok";
-    },
-    async listViews() {
-      return [...views].map(([name, text]) => ({ name, text }));
-    },
-    async writeView(name, text) {
-      views.set(name, text);
-      return "ok";
-    },
+    workflows,
+    listCards: cardIo.list,
+    writeCard: cardIo.write,
+    listViews: viewIo.list,
+    writeView: viewIo.write,
+    listWorkflows: workflowIo.list,
+    writeWorkflow: workflowIo.write,
+    listSessions: sessionIo.list,
+    writeSession: sessionIo.write,
+    listSchedules: scheduleIo.list,
+    writeSchedule: scheduleIo.write,
   };
+}
+
+function seeds() {
+  const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "workflows");
+  return readdirSync(dir)
+    .filter((name) => name.endsWith(".yaml"))
+    .map((name) => ({ name, text: readFileSync(path.join(dir, name), "utf8") }));
 }
 
 function view(id: string) {
@@ -87,10 +113,10 @@ test("卡片文件能往返，坏文件显示格式错误而不是丢掉", () =>
   assert.equal(parseCardDocument("没有前言").ok, false);
 });
 
-test("九个视图都能从定义文件读出，改属性和改定义会换栏", () => {
+test("十一个视图都能从定义文件读出，改属性和改定义会换栏", () => {
   assert.deepEqual(PRIMARY_VIEW_IDS, ["awaiting", "status-board", "business", "timeline"]);
-  assert.deepEqual(PRESET_VIEW_IDS, ["inbox", "idea-wall", "pending", "reminders", "by-project"]);
-  assert.equal(DEFAULT_VIEWS.length, 9);
+  assert.deepEqual(PRESET_VIEW_IDS, ["inbox", "idea-wall", "pending", "reminders", "by-project", "tasks", "stuck"]);
+  assert.equal(DEFAULT_VIEWS.length, 11);
   for (const item of DEFAULT_VIEWS) {
     const parsed = parseViewDocument(renderView(item));
     assert.equal(parsed.ok, true, item.id);
@@ -144,9 +170,9 @@ test("九个视图都能从定义文件读出，改属性和改定义会换栏",
   assert.deepEqual(reminders.matched.map((item) => item.id), ["soon"]);
 });
 
-test("同意、打回、指派和归档让等你处理减少，转成任务只改类型", async () => {
+test("同意、打回、指派和归档让等你处理减少，转成任务进入开发流", async () => {
   const files = memory();
-  const store = createCardStore(files, CARDS_ROOT);
+  const store = createCardStore(files, CARDS_ROOT, seeds());
   const turn = await store.writeTurn({
     agentId: "builder",
     title: "写完了",
@@ -166,7 +192,7 @@ test("同意、打回、指派和归档让等你处理减少，转成任务只�
   assert.equal(manual.ok, true);
   const first = readLibrary(await store.load(now));
   assert.equal(first.awaiting, 2);
-  assert.equal(first.views.length, 9);
+  assert.equal(first.views.length, 11);
   assert.equal(CARD_WALL_REFRESH_MS < 60_000, true);
   assert.equal(sidebarAwaitingLabel(first.awaiting), "等你处理 2");
   assert.equal(sidebarAwaitingLabel(null), "等你处理");
@@ -222,12 +248,18 @@ test("同意、打回、指派和归档让等你处理减少，转成任务只�
     nonce: "four",
   });
   assert.equal(parked.ok, true);
-  await store.act({ id: parked.id, action: { action: "to-task" }, now });
+  const started = await store.act({ id: parked.id, action: { action: "to-task" }, now });
+  assert.equal(started.ok, true);
+  assert.equal(started.delivery?.agentId, "builder");
+  assert.equal(started.delivery?.role, "实现");
   const converted = readLibrary(await store.load(now)).valid.find((item) => item.card.id === parked.id);
   assert.equal(converted?.card.type, "task");
-  assert.equal(converted?.card.status, "inbox");
+  assert.equal(converted?.card.status, "active");
+  assert.equal(converted?.card.workflow, "dev");
+  assert.equal(converted?.card.stage, "build");
   assert.equal(converted?.props.handoff, D5_TASK_HANDOFF);
-  assert.equal(readLibrary(await store.load(now)).awaiting, 1);
+  assert.match(converted?.body ?? "", /进入「实现」/);
+  assert.equal(readLibrary(await store.load(now)).awaiting, 0);
   await store.act({ id: parked.id, action: { action: "archive" }, now });
   assert.equal(readLibrary(await store.load(now)).awaiting, 0);
   assert.equal(readLibrary(await store.load(now)).valid.find((item) => item.card.id === parked.id)?.card.status, "archived");
@@ -237,7 +269,7 @@ test("已有视图不被覆盖，非法卡片不进入等你处理，写入接�
   const files = memory();
   files.views.set("awaiting.yaml", "id: awaiting\ntitle: 改过的队列\nlayout: list\nfilter:\n  op: eq\n  field: status\n  value: inbox\n");
   files.cards.set("bad.md", "这不是卡片\n");
-  const store = createCardStore(files, CARDS_ROOT);
+  const store = createCardStore(files, CARDS_ROOT, seeds());
   const direct = await store.writeCard(
     {
       id: "card-hand",
@@ -258,7 +290,7 @@ test("已有视图不被覆盖，非法卡片不进入等你处理，写入接�
   const reading = readLibrary(await store.load(now));
   assert.match(files.views.get("awaiting.yaml") ?? "", /改过的队列/);
   assert.equal(reading.views.find((item) => item.id === "awaiting")?.title, "改过的队列");
-  assert.equal(reading.views.length, 9);
+  assert.equal(reading.views.length, 11);
   assert.equal(reading.invalid.length, 1);
   assert.equal(reading.invalid[0]?.detail, "格式错误");
   assert.equal(reading.awaiting, 1);

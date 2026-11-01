@@ -2,7 +2,7 @@
   "name": "opc-core",
   "private": true,
   "version": "0.0.0",
-  "description": "一人公司操作系统核心插件。含模块开关、设置、通知、文件面板笔记和卡片墙。",
+  "description": "一人公司操作系统核心插件。含模块开关、设置、通知、文件面板笔记、卡片墙和任务工作流。",
   "license": "MIT",
   "type": "module",
   "files": [
