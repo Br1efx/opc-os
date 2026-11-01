@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "pluginId": "opc-core",
   "filesystem": {
-    "read": [],
-    "write": []
+    "read": ["**/*.md", "**/*.markdown"],
+    "write": ["**/*.md", "**/*.markdown"]
   },
   "network": {
     "enabled": true,
@@ -11,8 +11,8 @@
   },
   "modules": {
     "m1-notes": {
-      "enabled": false,
-      "filesystem": { "read": [], "write": [] },
+      "enabled": true,
+      "filesystem": { "read": ["**/*.md", "**/*.markdown"], "write": ["**/*.md", "**/*.markdown"] },
       "network": { "enabled": false, "hosts": [] }
     },
     "m2-card-wall": {

@@ -11,6 +11,7 @@ import {
   type ModuleId,
 } from "../shared/shell";
 import { ModuleScreen } from "./module-screen";
+import { NotesFilePanel } from "./notes-panel";
 
 const MODULE_ICONS: Record<ModuleId, string> = {
   "m1-notes": "NotebookPen",
@@ -69,9 +70,20 @@ function registerModule(client: PluginClientContext, id: ModuleId): () => void {
       );
     },
   });
+  const removePanel =
+    id === "m1-notes"
+      ? client.addFilePanel({
+          id: "opc-notes",
+          title: "笔记",
+          icon: "NotebookPen",
+          files: { extensions: ["md", "markdown"] },
+          Component: NotesFilePanel,
+        })
+      : null;
   return () => {
     removeScreen();
     removeItem();
+    removePanel?.();
   };
 }
 
