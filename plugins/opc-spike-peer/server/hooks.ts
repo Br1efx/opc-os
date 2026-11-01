@@ -7,7 +7,7 @@ import { z } from "zod";
 const spikeCard: Card = {
   id: "spike-s3",
   type: "task",
-  status: "open",
+  status: "inbox",
   title: "S3",
   oneLiner: "timeline probe",
   owner: { kind: "agent", id: "spike" },

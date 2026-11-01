@@ -6,12 +6,13 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 ## 当前进度
 
-这里完成了阶段 D0 的脚手架，D1 里仓库自身能做的外壳，D2 的笔记，以及 D4 的网关监控起步：
+这里完成了阶段 D0 的脚手架，D1 里仓库自身能做的外壳，D2 的笔记，D3 的卡片墙，以及 D4 的网关监控起步：
 
 - 中文说明、`docs/`、`adr/`、[术语表](docs/glossary.md)
 - pnpm workspace，覆盖 `plugins/*` 与 `packages/*`
 - `packages/card-protocol` 的卡片类型和校验，以及单元测试
 - `plugins/opc-core`：首页列出 M1–M6 并可开关，另有设置和通知入口。M1 在文件面板里打开 Markdown：电脑可编辑，手机只读，含批注和锁定
+- M2 卡片墙：Markdown 卡片、九个视图、筛选排序分组，以及同意、打回、指派。见 [adr/0005](adr/0005-d3-card-wall.md)
 - M3 外接本机 Magpie：今日花费、管理页、打标签、成本熔断，以及 `services/opc-datad`。见 [docs/gateway.md](docs/gateway.md)
 - 类型检查、单元测试、目录边界、许可证扫描、权限清单对照，以及数据仓的 Go 测试。这些失败会拦住 `pnpm verify` 和 GitHub Actions。手机端打包和性能测量还没有工具链，不算通过，见 [docs/verify.md](docs/verify.md)
 
@@ -22,7 +23,7 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 以下内容尚未开始，本仓库不能当作已经完成：
 
 - 在桌面或手机上点开这些页面（类型检查通过对过，没有在 me 面板上目测）
-- M2、M4、M5、M6 的功能。现在只有入口和开关。M1 的笔记 v1 在文件面板上，见 [adr/0004](adr/0004-d2-notes.md)。看板和画布还没有做
+- M4、M5、M6 的功能。现在只有入口和开关。M1 的笔记 v1 在文件面板上，见 [adr/0004](adr/0004-d2-notes.md)。M2 的卡片墙见 [adr/0005](adr/0005-d3-card-wall.md)。画布还没有做
 - 完整的父亲视频采集，以及把 Magpie 源码放进仓库
 
 架构里规划的外围插件（`opc-grok`、`opc-telegram`、`opc-collect-*`）和 `render-queue` 也不在本目录中。`opc-datad` 只有本机写入和读出，见 [docs/gateway.md](docs/gateway.md)。
@@ -31,7 +32,7 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 ```text
 opc-os/
-├─ plugins/opc-core          核心插件外壳，含 M1 笔记和 M3 网关页
+├─ plugins/opc-core          核心插件外壳，含 M1 笔记、M2 卡片墙和 M3 网关页
 ├─ packages/card-protocol    统一卡片类型和校验
 ├─ services/opc-datad        本机数据仓（Go / SQLite）
 ├─ registry/                 GitHub Pages 上的插件 registry

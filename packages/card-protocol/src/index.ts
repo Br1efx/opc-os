@@ -1,13 +1,13 @@
 /**
- * 统一卡片协议（D1）。
+ * 统一卡片协议。
  *
  * 字段与架构说明对齐：id、类型、状态、标题、一句话、负责人、来源、
- * 证据链接、关联卡、时间、未读。类型收成选题、任务、资产、问题、素材。
- * 负责人区分人和 Agent。状态机尚未冻结，状态仍是非空字符串。
+ * 证据链接、关联卡、时间、未读。类型是选题、任务、资产、问题、素材、决策。
+ * 负责人区分人和 Agent。状态是 §1.2 的生命周期。
  */
 
-/** D1 起的协议修订。字段形状从桩换成可校验的卡片。 */
-export const CARD_PROTOCOL_REVISION = "d1" as const;
+/** 修订号。d1 是可校验字段；d2 加上决策类型，并把状态收成生命周期。 */
+export const CARD_PROTOCOL_REVISION = "d2" as const;
 
 /** 要求出现的字段。顺序与架构说明一致。 */
 export const CARD_FIELDS = [
@@ -27,7 +27,7 @@ export const CARD_FIELDS = [
 export type CardField = (typeof CARD_FIELDS)[number];
 
 /** 卡片类型。界面用中文，协议里用稳定的英文标识。 */
-export const CARD_TYPES = ["topic", "task", "asset", "question", "material"] as const;
+export const CARD_TYPES = ["topic", "task", "asset", "question", "material", "decision"] as const;
 
 export type CardType = (typeof CARD_TYPES)[number];
 
@@ -37,7 +37,40 @@ export const CARD_TYPE_LABELS = {
   asset: "资产",
   question: "问题",
   material: "素材",
+  decision: "决策",
 } as const satisfies Record<CardType, string>;
+
+/**
+ * §1.2 生命周期。
+ * 收件箱 → 孵化中 → 推进中 → 已沉淀，末段分成搁置或归档。
+ * 待办、进行中、待审、完成不属于这里。
+ */
+export const CARD_STATUSES = ["inbox", "incubating", "active", "settled", "shelved", "archived"] as const;
+
+export type CardStatus = (typeof CARD_STATUSES)[number];
+
+export const CARD_STATUS_LABELS = {
+  inbox: "收件箱",
+  incubating: "孵化中",
+  active: "推进中",
+  settled: "已沉淀",
+  shelved: "搁置",
+  archived: "归档",
+} as const satisfies Record<CardStatus, string>;
+
+/**
+ * §1.2 笔记种类换成协议类型。
+ * 协议的 type 不接受这些中文名。问题没有对应种类，留给要人拍板的卡。
+ */
+export const SECTION12_CARD_TYPES = [
+  { kind: "想法", type: "topic" },
+  { kind: "随笔", type: "material" },
+  { kind: "资料", type: "asset" },
+  { kind: "链接", type: "material" },
+  { kind: "视频", type: "material" },
+  { kind: "提醒", type: "task" },
+  { kind: "复盘", type: "decision" },
+] as const satisfies readonly { kind: string; type: CardType }[];
 
 /** 负责人是人，或是 Agent。 */
 export const OWNER_KINDS = ["person", "agent"] as const;
@@ -52,12 +85,12 @@ export interface CardOwner {
 /**
  * 一张卡。
  * `evidence` 是证据链接，`related` 是关联卡的 id。
- * `time` 是 ISO-8601 时间字符串。状态机尚未冻结，所以 `status` 只要求非空。
+ * `time` 是 ISO-8601 时间字符串。`status` 只能是生命周期里的值。
  */
 export interface Card {
   id: string;
   type: CardType;
-  status: string;
+  status: CardStatus;
   title: string;
   oneLiner: string;
   owner: CardOwner;
@@ -98,6 +131,10 @@ export function isCardType(value: unknown): value is CardType {
   return typeof value === "string" && (CARD_TYPES as readonly string[]).includes(value);
 }
 
+export function isCardStatus(value: unknown): value is CardStatus {
+  return typeof value === "string" && (CARD_STATUSES as readonly string[]).includes(value);
+}
+
 export function isOwnerKind(value: unknown): value is OwnerKind {
   return value === "person" || value === "agent";
 }
@@ -118,6 +155,7 @@ export function hasCardShape(value: unknown): value is Card {
   }
   return (
     isCardType(value.type) &&
+    isCardStatus(value.status) &&
     isOwner(value.owner) &&
     isStringArray(value.evidence) &&
     isStringArray(value.related) &&
@@ -153,6 +191,9 @@ export function parseCard(value: unknown): ParseCardResult {
   if (!isCardType(value.type)) {
     push(issues, "type", value.type === undefined ? "missing" : "unknown");
   }
+  if (typeof value.status === "string" && !isCardStatus(value.status)) {
+    push(issues, "status", value.status.trim() === "" ? "empty" : "unknown");
+  }
   if (!isRecord(value.owner)) {
     push(issues, "owner", "type");
   } else {
@@ -168,7 +209,6 @@ export function parseCard(value: unknown): ParseCardResult {
 
   const card = value as unknown as Card;
   checkNonEmpty(issues, "id", card.id);
-  checkNonEmpty(issues, "status", card.status);
   checkNonEmpty(issues, "title", card.title);
   checkStringList(issues, "evidence", card.evidence);
   checkStringList(issues, "related", card.related);

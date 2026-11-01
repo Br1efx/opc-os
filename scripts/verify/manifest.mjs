@@ -111,7 +111,7 @@ export function scanManifest(root) {
   return {
     ok: true,
     detail:
-      "外壳和 m1-notes 声明了 Markdown 读写，外壳联网只允许 127.0.0.1。其余模块仍是 enabled: false，不能声明主机。源码里的文件系统 API 落在已声明读写的外壳上，用到网络 API 的字面量主机都在外壳 hosts 里。具体路径仍不能逐条证明只访问了这些模式。",
+      "外壳和 m1-notes 声明了 Markdown 读写，外壳联网只允许 127.0.0.1。m2-card-wall 声明卡片目录读写且不联网。其余模块仍是 enabled: false，不能声明主机。源码里的文件系统 API 落在已声明读写的外壳上，用到网络 API 的字面量主机都在外壳 hosts 里。具体路径仍不能逐条证明只访问了这些模式。",
   };
 }
 

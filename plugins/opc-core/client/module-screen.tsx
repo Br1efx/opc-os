@@ -2,6 +2,7 @@ import type { PluginScreenProps } from "@getpaseo/plugin/client";
 import { Component, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import { moduleById, type ModuleId } from "../shared/shell";
+import { CardWallScreen } from "./card-wall";
 import { GatewayScreen } from "./gateway-screen";
 import { useScreenStyles } from "./screen-style";
 
@@ -34,6 +35,7 @@ export function ModuleScreen(props: PluginScreenProps & { moduleId: ModuleId }) 
 }
 
 function ModuleBody({ moduleId, ...props }: PluginScreenProps & { moduleId: ModuleId }) {
+  if (moduleId === "m2-card-wall") return <CardWallScreen {...props} />;
   if (moduleId === "m3-gateway") return <GatewayScreen {...props} />;
   const mod = moduleById(moduleId);
   const styles = useScreenStyles(props.theme, props.layout.compact);

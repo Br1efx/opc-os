@@ -12,7 +12,7 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Plugin | 插件 | 装进 Paseo 的一套代码。opc-os 当前只有一个核心插件 `opc-core`。 |
 | Shell | 外壳 | 核心插件里一直在的部分：首页、侧栏、模块开关、设置、通知。 |
 | Module | 模块 | 外壳里面的一块功能。M1–M6 都在 `opc-core` 里，不是各自一个插件。关掉的模块不登记页面，也不出现在侧栏。 |
-| Card | 卡片 | 一件事的一张记录。选题、任务、资产、问题、素材都是卡片。 |
+| Card | 卡片 | 一件事的一张记录。选题、任务、资产、问题、素材、决策都是卡片。 |
 | Kanban / board | 看板 | 按状态把卡片分成几列来看。卡片墙是贴满卡片的总览，看板是其中一种看法。 |
 | Canary | 金丝雀 | 先在自己的面板（me）上用，确认没问题再推到另一个面板（dad）。 |
 | Topic | 选题 | 卡片类型。还没决定要不要做的题目。 |
@@ -21,12 +21,12 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Question | 问题 | 卡片类型。需要人拍板的疑问。 |
 | Material | 素材 | 卡片类型。写稿或做片要用的原始材料。 |
 | Owner | 负责人 | 这张卡归谁。要么是人，要么是 Agent。 |
-| Status | 状态 | 这张卡走到哪一步。状态机还没冻结，协议里只要求非空字符串。 |
+| Status | 状态 | 这张卡走到哪一步。生命周期是收件箱、孵化中、推进中、已沉淀、搁置、归档。机器名是 `inbox`、`incubating`、`active`、`settled`、`shelved`、`archived`。待办、进行中、待审、完成留给任务流。 |
 | One-liner | 一句话 | 标题下面那句摘要。 |
 | Source | 来源 | 这张卡从哪来，例如某轮 Agent、某次收集、人手动新建。 |
 | Evidence | 证据 | 支撑这张卡的链接。 |
 | Related | 关联卡 | 其他卡片的 id。 |
-| Unread | 未读 | 还没有人看过。通知和卡片墙以后都读这个字段。 |
+| Unread | 未读 | 还没有人看过。卡片墙上会标出来。侧栏的数量看的是「等你处理」，不是未读条数。 |
 | Notification | 通知 | 外壳上的统一入口。锁定区被改后自动还原时，会在这里留一条。 |
 | Settings | 设置 | 外壳上的统一入口。模块开关保存在这里。 |
 | Sidebar | 侧边栏 | Paseo 边上的那一列按钮。 |
@@ -46,5 +46,23 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | opc-datad | 数据仓 | 本机 Go 服务，把 OTLP 或等价写入收进 SQLite，再按 HTTP 读出。 |
 | Token Ledger | Token Ledger | 界面保留英文。本仓库没有单独账本，今日花费用 Magpie 用量里的 cost。 |
 | Host monitor | Host monitor | 界面保留英文。本仓库不采集 CPU 或内存，只显示网关自报的进程。 |
+| Decision | 决策 | 卡片类型。复盘映射到这里。 |
+| Bases | 视图查询 | 按属性筛选、排序、分组。这一阶段是子集，不是 Obsidian 的全部语法。界面说「视图」，不把 Bases 写在按钮上。 |
+| Inbox | 收件箱 | 生命周期的第一步，也是预置视图。新到的卡先放这里。 |
+| Incubating | 孵化中 | 打回之后回到这里，让 Agent 继续改。 |
+| Active | 推进中 | 已经同意继续做，或已经指派。 |
+| Settled | 已沉淀 | 问题或决策被同意之后停在这里。 |
+| Shelved | 搁置 | 先放着，不归档。 |
+| Archived | 归档 | 从墙上的待处理队列拿掉。状态看板里单独一列。 |
+| 等你处理 | 等你处理 | 默认视图，也是侧栏文字。预置筛选是收件箱。数量处理后下降。 |
+| Project | 项目 | 卡片上的业务线。预置三列：父亲 AI 芝麻馆、Build in Public、插件开发。 |
+| Build in Public | Build in Public | 界面保留。这是一条业务线的名字，不是通用英文。 |
+| 想法 | 选题 | §1.2 的笔记种类。写入卡片前换成 `topic`。 |
+| 随笔 | 素材 | §1.2 的笔记种类。写入前换成 `material`。 |
+| 资料 | 资产 | §1.2 的笔记种类。写入前换成 `asset`。 |
+| 链接 | 素材 | §1.2 的笔记种类。写入前换成 `material`。 |
+| 视频 | 素材 | §1.2 的笔记种类。写入前换成 `material`。 |
+| 提醒 | 任务 | §1.2 的笔记种类。写入前换成 `task`。近期提醒视图因此用任务类型。 |
+| 复盘 | 决策 | §1.2 的笔记种类。写入前换成 `decision`。 |
 
-卡片字段的机器可读名字在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。
+卡片字段的机器可读名字在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d2`。业务线写在前言的 `project`，不属于这十一项。对照表也在 [adr/0005](../adr/0005-d3-card-wall.md)。
