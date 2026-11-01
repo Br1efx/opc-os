@@ -21,7 +21,7 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Question | 问题 | 卡片类型。需要人拍板的疑问。 |
 | Material | 素材 | 卡片类型。写稿或做片要用的原始材料。 |
 | Owner | 负责人 | 这张卡归谁。要么是人，要么是 Agent。 |
-| Status | 状态 | 这张卡走到哪一步。生命周期是收件箱、孵化中、推进中、已沉淀、搁置、归档。机器名是 `inbox`、`incubating`、`active`、`settled`、`shelved`、`archived`。待办、进行中、待审、完成留给任务流。 |
+| Status | 状态 | 这张卡的生命周期。取值是收件箱、孵化中、推进中、已沉淀、搁置、归档。机器名是 `inbox`、`incubating`、`active`、`settled`、`shelved`、`archived`。它和工作流步骤不是一回事。 |
 | One-liner | 一句话 | 标题下面那句摘要。 |
 | Source | 来源 | 这张卡从哪来，例如某轮 Agent、某次收集、人手动新建。 |
 | Evidence | 证据 | 支撑这张卡的链接。 |
@@ -64,5 +64,8 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | 视频 | 素材 | §1.2 的笔记种类。写入前换成 `material`。 |
 | 提醒 | 任务 | §1.2 的笔记种类。写入前换成 `task`。近期提醒视图因此用任务类型。 |
 | 复盘 | 决策 | §1.2 的笔记种类。写入前换成 `decision`。 |
+| Stage | 步骤 | 任务在工作流里的位置，例如实现、待你验收。机器名是 `stage`。缺省时界面写「未命名步骤」。 |
+| 缺证据 | 缺证据 | 还没有证据，不能进入待验收或完成。 |
+| 卡住了 | 卡住了 | 失败累计到阶梯之后的视图。级别大于等于 1 才算。 |
 
-卡片字段的机器可读名字在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d2`。业务线写在前言的 `project`，不属于这十一项。对照表也在 [adr/0005](../adr/0005-d3-card-wall.md)。
+卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md) 和 [adr/0006](../adr/0006-d5a-tasks-workflows.md)。

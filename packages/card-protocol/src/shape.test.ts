@@ -4,6 +4,7 @@ import {
   CARD_FIELDS,
   CARD_PROTOCOL_REVISION,
   CARD_STATUSES,
+  TASK_FIELDS,
   CARD_STATUS_LABELS,
   CARD_TYPE_LABELS,
   CARD_TYPES,
@@ -26,8 +27,8 @@ const sample = {
   unread: true,
 };
 
-test("协议修订号从 d1 加一", () => {
-  assert.equal(CARD_PROTOCOL_REVISION, "d2");
+test("协议修订号是 d3", () => {
+  assert.equal(CARD_PROTOCOL_REVISION, "d3");
 });
 
 test("字段名与架构说明一致", () => {
@@ -124,6 +125,65 @@ test("未知类型、未知状态、空标识或坏时间不通过校验", () =>
   if (!badTime.ok) assert.equal(badTime.issues.some((issue) => issue.path === "time"), true);
   const emptyEvidence = parseCard({ ...sample, evidence: ["ok", ""] });
   assert.equal(emptyEvidence.ok, false);
+});
+
+test("d2 的卡没有任务字段也能通过，任务可以带上 d3 字段", () => {
+  assert.equal(hasCardShape(sample), true);
+  assert.equal(parseCard(sample).ok, true);
+  assert.deepEqual(TASK_FIELDS, [
+    "goal",
+    "acceptance",
+    "due",
+    "dependsOn",
+    "workflow",
+    "stage",
+    "failCount",
+    "ladderLevel",
+  ]);
+  const task = {
+    ...sample,
+    goal: "做完验收",
+    acceptance: ["验证通过"],
+    due: "2026-11-08T00:00:00Z",
+    dependsOn: ["card-0"],
+    workflow: "dev",
+    stage: "build",
+    failCount: 0,
+    ladderLevel: 1,
+  };
+  assert.equal(hasCardShape(task), true);
+  const parsed = parseCard(task);
+  assert.equal(parsed.ok, true);
+  if (parsed.ok) {
+    assert.equal(parsed.card.stage, "build");
+    assert.equal(parsed.card.ladderLevel, 1);
+    assert.equal(parsed.card.status, "inbox");
+  }
+  const fromText = parseCard({ ...sample, failCount: "2", ladderLevel: "0" });
+  assert.equal(fromText.ok, true);
+  if (fromText.ok) {
+    assert.equal(fromText.card.failCount, 2);
+    assert.equal(fromText.card.ladderLevel, 0);
+  }
+});
+
+test("任务字段类型不对，或别的类型带了步骤，就不通过", () => {
+  assert.equal(hasCardShape({ ...sample, failCount: "0" }), false);
+  assert.equal(hasCardShape({ ...sample, acceptance: "一条" }), false);
+  const negative = parseCard({ ...sample, ladderLevel: -1 });
+  assert.equal(negative.ok, false);
+  if (!negative.ok) assert.equal(negative.issues.some((issue) => issue.path === "ladderLevel"), true);
+  const fractional = parseCard({ ...sample, failCount: 1.5 });
+  assert.equal(fractional.ok, false);
+  const emptyAcceptance = parseCard({ ...sample, acceptance: ["通过", ""] });
+  assert.equal(emptyAcceptance.ok, false);
+  const badDue = parseCard({ ...sample, due: "下周" });
+  assert.equal(badDue.ok, false);
+  if (!badDue.ok) assert.equal(badDue.issues.some((issue) => issue.path === "due"), true);
+  const topic = parseCard({ ...sample, type: "topic", stage: "build" });
+  assert.equal(topic.ok, false);
+  if (!topic.ok) assert.equal(topic.issues.some((issue) => issue.path === "stage" && issue.code === "unknown"), true);
+  assert.equal(hasCardShape({ ...sample, type: "topic", workflow: "dev" }), false);
 });
 
 test("缺字段、类型不对或不是对象时不通过", () => {

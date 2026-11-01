@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { CARDS_ROOT, VIEWS_DIR, type CardFiles } from "../shared/cards";
+import { CARDS_ROOT, SCHEDULES_DIR, SESSIONS_DIR, VIEWS_DIR, WORKFLOWS_DIR, type CardFiles } from "../shared/cards";
 
 const MAX_BYTES = 1_000_000;
 
@@ -17,6 +17,24 @@ export function createNodeCardFiles(root = CARDS_ROOT): CardFiles {
     },
     async writeView(name, text) {
       return writeInside(path.join(root, VIEWS_DIR), name, text, (fileName) => /\.(?:yaml|yml|json)$/.test(fileName));
+    },
+    async listWorkflows() {
+      return readDir(path.join(root, WORKFLOWS_DIR), (name) => /\.yaml$/.test(name));
+    },
+    async writeWorkflow(name, text) {
+      return writeInside(path.join(root, WORKFLOWS_DIR), name, text, (fileName) => fileName.endsWith(".yaml"));
+    },
+    async listSessions() {
+      return readDir(path.join(root, SESSIONS_DIR), (name) => name.endsWith(".md"));
+    },
+    async writeSession(name, text) {
+      return writeInside(path.join(root, SESSIONS_DIR), name, text, (fileName) => fileName.endsWith(".md"));
+    },
+    async listSchedules() {
+      return readDir(path.join(root, SCHEDULES_DIR), (name) => name.endsWith(".md"));
+    },
+    async writeSchedule(name, text) {
+      return writeInside(path.join(root, SCHEDULES_DIR), name, text, (fileName) => fileName.endsWith(".md"));
     },
   };
 }

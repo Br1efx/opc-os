@@ -6,8 +6,13 @@
  * 负责人区分人和 Agent。状态是 §1.2 的生命周期。
  */
 
-/** 修订号。d1 是可校验字段；d2 加上决策类型，并把状态收成生命周期。 */
-export const CARD_PROTOCOL_REVISION = "d2" as const;
+/**
+ * 修订号。
+ * d1 是可校验字段；d2 加上决策类型，并把状态收成生命周期。
+ * d3 给任务加上目标、验收、截止、依赖、工作流、步骤和卡住阶梯。
+ * 这些任务字段可以不出现，这样 d2 的卡仍然读得过。
+ */
+export const CARD_PROTOCOL_REVISION = "d3" as const;
 
 /** 要求出现的字段。顺序与架构说明一致。 */
 export const CARD_FIELDS = [
@@ -25,6 +30,24 @@ export const CARD_FIELDS = [
 ] as const;
 
 export type CardField = (typeof CARD_FIELDS)[number];
+
+/**
+ * 只对 type=task 有意义的字段。
+ * `owner` 和 `evidence` 仍用上面的公共字段，不另造一份。
+ * `stage` 是工作流步骤，和生命周期 `status` 不是同一根轴。
+ */
+export const TASK_FIELDS = [
+  "goal",
+  "acceptance",
+  "due",
+  "dependsOn",
+  "workflow",
+  "stage",
+  "failCount",
+  "ladderLevel",
+] as const;
+
+export type TaskField = (typeof TASK_FIELDS)[number];
 
 /** 卡片类型。界面用中文，协议里用稳定的英文标识。 */
 export const CARD_TYPES = ["topic", "task", "asset", "question", "material", "decision"] as const;
@@ -86,6 +109,8 @@ export interface CardOwner {
  * 一张卡。
  * `evidence` 是证据链接，`related` 是关联卡的 id。
  * `time` 是 ISO-8601 时间字符串。`status` 只能是生命周期里的值。
+ * 任务还可以带目标、验收标准、截止、依赖、工作流、当前步骤、失败次数和卡住级别。
+ * 缺这些字段时仍是一张合法的卡。
  */
 export interface Card {
   id: string;
@@ -99,6 +124,14 @@ export interface Card {
   related: readonly string[];
   time: string;
   unread: boolean;
+  goal?: string;
+  acceptance?: readonly string[];
+  due?: string;
+  dependsOn?: readonly string[];
+  workflow?: string;
+  stage?: string;
+  failCount?: number;
+  ladderLevel?: number;
 }
 
 export type CardIssueCode = "not-object" | "missing" | "type" | "empty" | "unknown" | "time";
@@ -144,6 +177,29 @@ function isOwner(value: unknown): value is CardOwner {
   return isOwnerKind(value.kind) && typeof value.id === "string";
 }
 
+function isCount(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+function coerceCount(value: Record<string, unknown>, key: "failCount" | "ladderLevel") {
+  const item = value[key];
+  if (typeof item === "string" && /^(?:0|[1-9][0-9]*)$/.test(item)) value[key] = Number(item);
+}
+
+/** 任务字段类型对不对。别的类型只要带了其中任何一项，形状就不算任务卡。 */
+function taskFieldsFit(value: Record<string, unknown>): boolean {
+  if (value.type !== "task") return TASK_FIELDS.every((key) => value[key] === undefined);
+  if (value.goal !== undefined && typeof value.goal !== "string") return false;
+  if (value.acceptance !== undefined && !isStringArray(value.acceptance)) return false;
+  if (value.due !== undefined && typeof value.due !== "string") return false;
+  if (value.dependsOn !== undefined && !isStringArray(value.dependsOn)) return false;
+  if (value.workflow !== undefined && typeof value.workflow !== "string") return false;
+  if (value.stage !== undefined && typeof value.stage !== "string") return false;
+  if (value.failCount !== undefined && !isCount(value.failCount)) return false;
+  if (value.ladderLevel !== undefined && !isCount(value.ladderLevel)) return false;
+  return true;
+}
+
 /**
  * 只检查字段在不在、类型是否对得上。
  * 不检查空字符串、时间格式或状态机。取值校验用 `parseCard`。
@@ -159,7 +215,8 @@ export function hasCardShape(value: unknown): value is Card {
     isOwner(value.owner) &&
     isStringArray(value.evidence) &&
     isStringArray(value.related) &&
-    typeof value.unread === "boolean"
+    typeof value.unread === "boolean" &&
+    taskFieldsFit(value)
   );
 }
 
@@ -183,6 +240,8 @@ function checkStringList(issues: CardIssue[], path: string, value: readonly stri
  */
 export function parseCard(value: unknown): ParseCardResult {
   if (!isRecord(value)) return { ok: false, issues: [{ path: "", code: "not-object" }] };
+  coerceCount(value, "failCount");
+  coerceCount(value, "ladderLevel");
 
   const issues: CardIssue[] = [];
   for (const field of STRING_FIELDS) {
@@ -204,6 +263,7 @@ export function parseCard(value: unknown): ParseCardResult {
   if (!isStringArray(value.evidence)) push(issues, "evidence", "type");
   if (!isStringArray(value.related)) push(issues, "related", "type");
   if (typeof value.unread !== "boolean") push(issues, "unread", "type");
+  if (isCardType(value.type)) collectTaskIssues(issues, value);
 
   if (issues.length > 0) return { ok: false, issues };
 
@@ -215,6 +275,28 @@ export function parseCard(value: unknown): ParseCardResult {
   if (card.time.trim() === "" || Number.isNaN(Date.parse(card.time))) {
     push(issues, "time", "time");
   }
+  if (card.acceptance) checkStringList(issues, "acceptance", card.acceptance);
+  if (card.dependsOn) checkStringList(issues, "dependsOn", card.dependsOn);
+  if (card.due !== undefined && card.due.trim() !== "" && Number.isNaN(Date.parse(card.due))) {
+    push(issues, "due", "time");
+  }
   if (issues.length > 0) return { ok: false, issues };
   return { ok: true, card };
+}
+
+function collectTaskIssues(issues: CardIssue[], value: Record<string, unknown>) {
+  if (value.type !== "task") {
+    for (const key of TASK_FIELDS) {
+      if (value[key] !== undefined) push(issues, key, "unknown");
+    }
+    return;
+  }
+  if (value.goal !== undefined && typeof value.goal !== "string") push(issues, "goal", "type");
+  if (value.acceptance !== undefined && !isStringArray(value.acceptance)) push(issues, "acceptance", "type");
+  if (value.due !== undefined && typeof value.due !== "string") push(issues, "due", "type");
+  if (value.dependsOn !== undefined && !isStringArray(value.dependsOn)) push(issues, "dependsOn", "type");
+  if (value.workflow !== undefined && typeof value.workflow !== "string") push(issues, "workflow", "type");
+  if (value.stage !== undefined && typeof value.stage !== "string") push(issues, "stage", "type");
+  if (value.failCount !== undefined && !isCount(value.failCount)) push(issues, "failCount", "type");
+  if (value.ladderLevel !== undefined && !isCount(value.ladderLevel)) push(issues, "ladderLevel", "type");
 }

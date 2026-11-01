@@ -5,6 +5,7 @@ import { moduleById, type ModuleId } from "../shared/shell";
 import { CardWallScreen } from "./card-wall";
 import { GatewayScreen } from "./gateway-screen";
 import { useScreenStyles } from "./screen-style";
+import { TasksScreen } from "./tasks-screen";
 
 class ModuleBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -37,6 +38,7 @@ export function ModuleScreen(props: PluginScreenProps & { moduleId: ModuleId }) 
 function ModuleBody({ moduleId, ...props }: PluginScreenProps & { moduleId: ModuleId }) {
   if (moduleId === "m2-card-wall") return <CardWallScreen {...props} />;
   if (moduleId === "m3-gateway") return <GatewayScreen {...props} />;
+  if (moduleId === "m4-tasks") return <TasksScreen {...props} />;
   const mod = moduleById(moduleId);
   const styles = useScreenStyles(props.theme, props.layout.compact);
   return (

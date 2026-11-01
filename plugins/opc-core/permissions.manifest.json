@@ -29,8 +29,21 @@
       "network": { "enabled": false, "hosts": [] }
     },
     "m4-tasks": {
-      "enabled": false,
-      "filesystem": { "read": [], "write": [] },
+      "enabled": true,
+      "filesystem": {
+        "read": [
+          "/home/br1efx/notes/cards/",
+          "/home/br1efx/notes/cards/_workflows/",
+          "/home/br1efx/notes/cards/_sessions/",
+          "/home/br1efx/notes/cards/_schedules/"
+        ],
+        "write": [
+          "/home/br1efx/notes/cards/",
+          "/home/br1efx/notes/cards/_workflows/",
+          "/home/br1efx/notes/cards/_sessions/",
+          "/home/br1efx/notes/cards/_schedules/"
+        ]
+      },
       "network": { "enabled": false, "hosts": [] }
     },
     "m5-ui": {

@@ -1,0 +1,51 @@
+# 开发流。改这份文件后，下一次起任务和推进会读新内容。
+id: dev
+title: 开发流
+summary: 需求交给实现、审查和门禁，最后到待你验收。
+steps:
+  - id: demand
+    title: 需求
+    role: 需求
+    kind: seed
+    enter: start
+    instruction: 目标已经写在任务上，这一步直接交给实现。
+  - id: build
+    title: 实现
+    role: 实现
+    kind: agent
+    enter: previous
+    agentId: builder
+    timeoutMinutes: 240
+    instruction: 按目标和验收标准实现。做完说明改了什么，并把测试名、链接或日志留给证据。
+  - id: review
+    title: 审查
+    role: 审查
+    kind: agent
+    enter: previous
+    agentId: reviewer
+    timeoutMinutes: 240
+    instruction: 用另一家的视角审查这次改动，只指出必须改的问题。
+  - id: verify
+    title: 门禁
+    role: 门禁
+    kind: gate
+    enter: previous
+    agentId: verifier
+    timeoutMinutes: 120
+    instruction: 跑验证。通过就把测试名或日志写成证据。失败就说明哪里没过。
+  - id: accept
+    title: 待你验收
+    role: 人
+    kind: accept
+    enter: previous
+    human: true
+    requiresEvidence: true
+    instruction: 请对照验收标准验收。没有证据不能进入这一步。
+  - id: done
+    title: 完成
+    role: 人
+    kind: done
+    enter: previous
+    human: true
+    requiresEvidence: true
+    instruction: 验收通过，这张任务完成。
