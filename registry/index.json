@@ -16,11 +16,11 @@
     {
       "id": "br1efx/opc-core",
       "name": "一人公司 OS",
-      "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）之上，加上文件面板笔记 v1（编辑、问 Agent、批注、锁定）。",
+      "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）和文件面板笔记 v1（编辑、问 Agent、批注、锁定）之上，加上卡片墙与 Bases 子集查询引擎。",
       "translations": {
         "zh-CN": {
           "name": "一人公司 OS",
-          "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）之上，加上文件面板笔记 v1（编辑、问 Agent、批注、锁定）。"
+          "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）和文件面板笔记 v1（编辑、问 Agent、批注、锁定）之上，加上卡片墙与 Bases 子集查询引擎。"
         }
       },
       "license": "MIT",
@@ -31,20 +31,20 @@
       },
       "repository": {
         "url": "https://github.com/Br1efx/opc-os",
-        "commit": "78f95e5a5a95621e4afe687028852c6dee201705"
+        "commit": "45bf821b9a2bc9411837d54aed709c1f7c85d320"
       },
       "artifact": {
         "kind": "git",
         "remote": "https://github.com/Br1efx/opc-os.git",
-        "commit": "78f95e5a5a95621e4afe687028852c6dee201705",
+        "commit": "45bf821b9a2bc9411837d54aed709c1f7c85d320",
         "pluginPath": "plugins/opc-core"
       },
       "media": [],
-      "submittedAt": "2026-11-01T01:14:09.000Z",
-      "reviewedAt": "2026-11-01T01:14:09.000Z",
-      "updatedAt": "2026-11-01T01:14:09.000Z",
-      "publishedAt": "2026-11-01T01:14:09.000Z"
+      "submittedAt": "2026-11-01T02:01:47.000Z",
+      "reviewedAt": "2026-11-01T02:01:47.000Z",
+      "updatedAt": "2026-11-01T02:01:47.000Z",
+      "publishedAt": "2026-11-01T02:01:47.000Z"
     }
   ],
-  "generatedAt": "2026-11-01T01:14:09.000Z"
+  "generatedAt": "2026-11-01T02:01:47.000Z"
 }
