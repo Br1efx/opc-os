@@ -1,4 +1,5 @@
 import type { PluginScreenProps } from "@getpaseo/plugin/client";
+import { CARD_STATUS_LABELS, type CardStatus } from "@opc-os/card-protocol";
 import { usePaseo, useRpc, useSettings } from "@getpaseo/plugin/client";
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Pressable, ScrollView, Switch, Text, View } from "react-native";
@@ -232,13 +233,20 @@ function BreakerTab({
         <View>
           <Text style={styles.alert}>{alert.card.title}</Text>
           <Text style={styles.detail}>{alert.card.oneLiner}</Text>
-          <Text style={styles.detail}>状态 {alert.card.status} · {alert.card.id}</Text>
+          <Text style={styles.detail}>状态 {statusText(alert.card.status)} · {alert.card.id}</Text>
         </View>
       ) : (
         <Text style={styles.detail}>还没有超过限额。</Text>
       )}
     </View>
   );
+}
+
+function statusText(status: string): string {
+  if ((Object.keys(CARD_STATUS_LABELS) as CardStatus[]).includes(status as CardStatus)) {
+    return CARD_STATUS_LABELS[status as CardStatus];
+  }
+  return status;
 }
 
 function LineList({ lines, styles }: { lines: { title: string; detail: string }[]; styles: GatewayStyles }) {

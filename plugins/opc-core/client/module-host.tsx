@@ -10,6 +10,7 @@ import {
   type ModuleFlags,
   type ModuleId,
 } from "../shared/shell";
+import { CardWallNav } from "./card-wall";
 import { ModuleScreen } from "./module-screen";
 import { NotesFilePanel } from "./notes-panel";
 
@@ -59,13 +60,14 @@ function registerModule(client: PluginClientContext, id: ModuleId): () => void {
   const removeItem = client.addSidebarHeaderItem({
     id: mod.id,
     title: mod.title,
-    Component: function ModuleItem({ currentScreen, openScreen }: PluginSidebarItemProps) {
+    Component: function ModuleItem(props: PluginSidebarItemProps) {
+      if (mod.id === "m2-card-wall") return <CardWallNav {...props} />;
       return (
         <SidebarRow
           icon={MODULE_ICONS[mod.id]}
           label={mod.title}
-          active={currentScreen?.screenId === mod.id}
-          onPress={() => openScreen({ screenId: mod.id })}
+          active={props.currentScreen?.screenId === mod.id}
+          onPress={() => props.openScreen({ screenId: mod.id })}
         />
       );
     },

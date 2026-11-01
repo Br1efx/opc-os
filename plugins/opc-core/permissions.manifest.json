@@ -16,8 +16,11 @@
       "network": { "enabled": false, "hosts": [] }
     },
     "m2-card-wall": {
-      "enabled": false,
-      "filesystem": { "read": [], "write": [] },
+      "enabled": true,
+      "filesystem": {
+        "read": ["/home/br1efx/notes/cards/", "/home/br1efx/notes/cards/_views/"],
+        "write": ["/home/br1efx/notes/cards/", "/home/br1efx/notes/cards/_views/"]
+      },
       "network": { "enabled": false, "hosts": [] }
     },
     "m3-gateway": {

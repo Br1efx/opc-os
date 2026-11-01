@@ -1,4 +1,4 @@
-import { parseCard, type Card } from "@opc-os/card-protocol";
+import { CARD_STATUSES, CARD_TYPES, parseCard, type Card } from "@opc-os/card-protocol";
 import { z } from "zod";
 
 /** 人 × 项目 × 角色 × 模块。打在出站请求和数据仓记录上。 */
@@ -72,8 +72,8 @@ const lineSchema = z.object({ title: z.string(), detail: z.string() });
 
 const cardSchema = z.object({
   id: z.string(),
-  type: z.enum(["topic", "task", "asset", "question", "material"]),
-  status: z.string(),
+  type: z.enum(CARD_TYPES),
+  status: z.enum(CARD_STATUSES),
   title: z.string(),
   oneLiner: z.string(),
   owner: z.object({ kind: z.enum(["person", "agent"]), id: z.string() }),
@@ -208,7 +208,7 @@ export function costAlertCard(input: {
   const card: Card = {
     id: `gateway-cost-${day || "unknown"}`,
     type: "question",
-    status: "alert",
+    status: "inbox",
     title: "成本熔断",
     oneLiner: `${input.tags.person} / ${input.tags.project} / ${input.tags.role} / ${input.tags.module}：今日花费 ${formatUsd(spentUsd)} 美元，限额 ${formatUsd(limitUsd)} 美元。`,
     owner: { kind: "agent", id: "opc-gateway" },

@@ -95,7 +95,7 @@ test("调低限额后生成可校验的熔断卡，高于花费则不触发", ()
   assert.equal(parsed.ok, true);
   if (parsed.ok) {
     assert.equal(parsed.card.type, "question");
-    assert.equal(parsed.card.status, "alert");
+    assert.equal(parsed.card.status, "inbox");
     assert.equal(parsed.card.title, "成本熔断");
     assert.equal(parsed.card.unread, true);
     assert.match(parsed.card.oneLiner, /1\.25/);
