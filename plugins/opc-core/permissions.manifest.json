@@ -86,8 +86,11 @@
       "network": { "enabled": false, "hosts": [] }
     },
     "m5-ui": {
-      "enabled": false,
-      "filesystem": { "read": [], "write": [] },
+      "enabled": true,
+      "filesystem": {
+        "read": ["/home/br1efx/notes/cards/_ui/"],
+        "write": []
+      },
       "network": { "enabled": false, "hosts": [] }
     },
     "m6-i18n": {

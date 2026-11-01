@@ -23,6 +23,7 @@ import {
 } from "../shared/cards";
 import { readTaskMeta, runtimeFromCard } from "../shared/task-doc";
 import { parseWorkflow, progressOf, stageTitle, type Workflow } from "../shared/workflow";
+import { typeMetrics } from "../shared/ui";
 import { deliverRole } from "./dispatch";
 import { INTAKE_TABS, IntakePanel, type IntakeTab } from "./intake-panel";
 import { StartTaskForm } from "./task-start";
@@ -90,9 +91,9 @@ export function CardWallNav({ currentScreen, openScreen, theme }: PluginSidebarI
   );
 }
 
-export function CardWallScreen({ theme, layout }: PluginScreenProps) {
+export function CardWallScreen({ theme, layout, elder = false }: PluginScreenProps & { elder?: boolean }) {
   const compact = layout.compact;
-  const styles = useCardStyles(theme, compact);
+  const styles = useCardStyles(theme, compact, elder);
   const list = useRpc(listCardsRpc);
   const create = useRpc(createCardRpc);
   const act = useRpc(actCardRpc);
@@ -555,7 +556,7 @@ function CardFace({
           ))}
         </View>
       ) : null}
-      <View style={compact ? styles.stack : styles.actions}>
+      <View style={styles.actionRow}>
         <Hit label="同意" disabled={busy} onPress={() => void run({ action: "approve" })} styles={styles} />
         <Hit label="打回" disabled={busy} onPress={() => void run({ action: "reject", reason })} styles={styles} />
         <Hit label="指派" disabled={busy} onPress={() => void run({ action: "assign", agentId })} styles={styles} />
@@ -639,9 +640,9 @@ function Hit({
 
 type CardStyles = ReturnType<typeof useCardStyles>;
 
-function useCardStyles(theme: PluginScreenProps["theme"], compact: boolean) {
-  return useMemo(
-    () => ({
+function useCardStyles(theme: PluginScreenProps["theme"], compact: boolean, elder = false) {
+  return useMemo(() => {
+    const base = {
       screen: { flex: 1, backgroundColor: theme.colors.surface0 },
       content: { padding: compact ? 16 : 24, paddingBottom: 48 },
       title: { color: theme.colors.foreground, fontSize: compact ? 22 : 28 },
@@ -666,6 +667,9 @@ function useCardStyles(theme: PluginScreenProps["theme"], compact: boolean) {
       column: { width: 260, marginRight: 12 },
       wrap: { flexDirection: "row" as const, flexWrap: "wrap" as const },
       actions: { flexDirection: "row" as const, flexWrap: "wrap" as const },
+      actionRow: compact
+        ? { marginTop: 8 }
+        : { flexDirection: "row" as const, flexWrap: "wrap" as const },
       hit: { minHeight: 44, justifyContent: "center" as const, marginRight: 16 },
       track: { height: 6, marginTop: 8, backgroundColor: theme.colors.border },
       bar: { height: 6, backgroundColor: theme.colors.accent },
@@ -678,7 +682,68 @@ function useCardStyles(theme: PluginScreenProps["theme"], compact: boolean) {
         paddingHorizontal: 12,
         paddingVertical: 8,
       },
-    }),
-    [theme, compact],
-  );
+    };
+    if (!elder) return base;
+    const metrics = typeMetrics(true, compact);
+    return {
+      ...base,
+      content: { padding: metrics.pad, paddingBottom: 48 },
+      title: { color: theme.colors.foreground, fontSize: metrics.title, lineHeight: metrics.lineHeight },
+      detail: {
+        color: theme.colors.foregroundMuted,
+        marginTop: metrics.gap,
+        fontSize: metrics.body,
+        lineHeight: metrics.lineHeight,
+      },
+      name: {
+        color: theme.colors.foreground,
+        fontSize: metrics.body,
+        lineHeight: metrics.lineHeight,
+        marginTop: metrics.gap,
+      },
+      action: {
+        color: theme.colors.accent,
+        marginTop: metrics.gap,
+        fontSize: metrics.body,
+        lineHeight: metrics.lineHeight,
+        minHeight: metrics.hitMin,
+      },
+      tab: {
+        color: theme.colors.foregroundMuted,
+        marginRight: 16,
+        paddingVertical: 12,
+        minHeight: metrics.hitMin,
+        fontSize: metrics.body,
+        lineHeight: metrics.lineHeight,
+      },
+      tabOn: {
+        color: theme.colors.foreground,
+        marginRight: 16,
+        paddingVertical: 12,
+        minHeight: metrics.hitMin,
+        fontSize: metrics.body,
+        lineHeight: metrics.lineHeight,
+      },
+      card: {
+        marginTop: metrics.gap,
+        padding: metrics.pad,
+        backgroundColor: theme.colors.surface1,
+        borderColor: theme.colors.border,
+        borderWidth: 1,
+      },
+      actionRow: { marginTop: 8 },
+      hit: {
+        minHeight: metrics.hitMin,
+        justifyContent: "center" as const,
+        alignSelf: "stretch" as const,
+        width: "100%" as const,
+        marginTop: 8,
+      },
+      input: {
+        ...base.input,
+        minHeight: metrics.hitMin,
+        fontSize: metrics.body,
+      },
+    };
+  }, [theme, compact, elder]);
 }

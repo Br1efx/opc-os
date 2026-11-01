@@ -25,7 +25,7 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 - 在桌面或手机上点开这些页面（类型检查通过对过，没有在 me 面板上目测）
 - 在真机上点过起任务、派工、归档和定时命令。这些标了需真机验证
-- M5、M6 的功能。现在只有入口和开关。M1 的笔记在文件面板上，见 [adr/0004](adr/0004-d2-notes.md)。画布、嵌入和 `/收集` 见 [adr/0008](adr/0008-d6-canvas-embed-collect.md)。M2 的卡片墙见 [adr/0005](adr/0005-d3-card-wall.md)。M4 见 [adr/0006](adr/0006-d5a-tasks-workflows.md)。D5b 的接单见 [adr/0007](adr/0007-d5b-opc-intake.md)。Telegram、浏览器剪藏和 Grok 转交还没接通，见 [docs/collect-ports.md](docs/collect-ports.md)
+- M6 的功能。现在只有入口和开关。M5 的显示名分组、状态条和老人模式见 [adr/0009](adr/0009-d7-ui-polish.md)，父亲手机上的字号仍需真机验证。M1 的笔记在文件面板上，见 [adr/0004](adr/0004-d2-notes.md)。画布、嵌入和 `/收集` 见 [adr/0008](adr/0008-d6-canvas-embed-collect.md)。M2 的卡片墙见 [adr/0005](adr/0005-d3-card-wall.md)。M4 见 [adr/0006](adr/0006-d5a-tasks-workflows.md)。D5b 的接单见 [adr/0007](adr/0007-d5b-opc-intake.md)。Telegram、浏览器剪藏和 Grok 转交还没接通，见 [docs/collect-ports.md](docs/collect-ports.md)
 - 完整的父亲视频采集，以及把 Magpie 源码放进仓库
 
 架构里规划的外围插件（`opc-grok`、`opc-telegram`、`opc-collect-*`）和 `render-queue` 也不在本目录中。`opc-datad` 只有本机写入和读出，见 [docs/gateway.md](docs/gateway.md)。
@@ -34,7 +34,7 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 ```text
 opc-os/
-├─ plugins/opc-core          核心插件外壳，含 M1 笔记与画布、M2 卡片墙、M3 网关页和 M4 任务
+├─ plugins/opc-core          核心插件外壳，含 M1 笔记与画布、M2 卡片墙、M3 网关页、M4 任务和 M5 界面
 ├─ packages/card-protocol    统一卡片类型和校验
 ├─ packages/page-fetch       收集时拉取公网页面
 ├─ services/opc-datad        本机数据仓（Go / SQLite）

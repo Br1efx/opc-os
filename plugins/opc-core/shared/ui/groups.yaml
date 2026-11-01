@@ -1,0 +1,134 @@
+# 显示名分组。复制到卡片库的 _ui/groups.yaml 后，刷新即生效。
+foldCompleted: true
+title:
+  weight: 半粗
+  color: 强调色
+  prefixIcon: true
+groups:
+  - id: chief
+    displayName: 总秘书
+    icon: 🧠
+    order: 10
+    collapsed: false
+    match:
+      - chief
+      - 总秘书
+  - id: builder
+    displayName: 主力开发
+    icon: 🔨
+    order: 20
+    collapsed: false
+    match:
+      - builder-a
+      - 主力开发
+      - 实现
+  - id: strike
+    displayName: 攻坚
+    icon: 🛠️
+    order: 30
+    collapsed: false
+    match:
+      - builder-b
+      - builder-hard
+      - 攻坚
+      - 攻坚开发
+  - id: reviewer
+    displayName: 审查员
+    icon: 🔍
+    order: 40
+    collapsed: false
+    match:
+      - reviewer
+      - 审查
+      - 审查员
+  - id: arbiter
+    displayName: 裁判
+    icon: ⚖️
+    order: 50
+    collapsed: false
+    match:
+      - arbiter
+      - 裁判
+  - id: dispatcher
+    displayName: 调度员
+    icon: 🚦
+    order: 60
+    collapsed: false
+    match:
+      - dispatcher
+      - 调度员
+  - id: writer
+    displayName: 写作
+    icon: ✍️
+    order: 70
+    collapsed: false
+    match:
+      - writer
+      - 写作
+      - 写作助理
+      - 撰稿
+      - 改编
+  - id: grunt
+    displayName: 杂务
+    icon: 🧹
+    order: 80
+    collapsed: false
+    match:
+      - grunt
+      - 杂务
+  - id: advisor
+    displayName: 顾问
+    icon: 💬
+    order: 90
+    collapsed: false
+    match:
+      - dad-opus
+      - 顾问
+  - id: producer
+    displayName: 制片人
+    icon: 🎬
+    order: 100
+    collapsed: false
+    match:
+      - dad-chief
+      - 制片人
+  - id: animator
+    displayName: 动画师
+    icon: 🎨
+    order: 110
+    collapsed: false
+    match:
+      - dad-builder
+      - 动画师
+  - id: viewer
+    displayName: 审片员
+    icon: 👀
+    order: 120
+    collapsed: false
+    match:
+      - dad-reviewer
+      - 审片员
+  - id: hand
+    displayName: 打杂
+    icon: 📦
+    order: 130
+    collapsed: false
+    match:
+      - dad-grunt
+      - 打杂
+  - id: radar
+    displayName: 选题雷达
+    icon: 📡
+    order: 140
+    collapsed: false
+    match:
+      - radar
+      - 选题雷达
+  - id: analyst
+    displayName: 数据分析师
+    icon: 📊
+    order: 150
+    collapsed: false
+    match:
+      - analyst
+      - 数据分析师

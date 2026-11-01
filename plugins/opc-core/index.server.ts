@@ -4,6 +4,7 @@ import { registerCollect } from "./server/collect";
 import { registerIntake } from "./server/intake";
 import { registerGateway } from "./server/gateway";
 import { registerNotes } from "./server/notes";
+import { registerUi } from "./server/ui";
 import { CORE_CARD_REVISION } from "./shared/card-ref";
 import { shellSettings } from "./shared/shell";
 
@@ -19,8 +20,10 @@ export default function contribute(server: PluginServerContext) {
   const cards = registerCards(server, settings);
   const stopIntake = registerIntake(server, settings);
   const stopCollect = registerCollect(server, settings, cards.store);
+  const stopUi = registerUi(server);
   void CORE_CARD_REVISION;
   return () => {
+    stopUi();
     stopCollect();
     stopIntake();
     stopGateway();

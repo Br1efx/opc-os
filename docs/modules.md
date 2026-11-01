@@ -4,7 +4,7 @@
 
 首页「一人公司 OS」和「设置」列出这六个模块，并带开关。开关保存在主机设置 `shell` 里，默认全部打开。关掉的模块不会登记页面，也不会出现在侧栏。模块界面崩了只显示「这块坏了」。
 
-`plugins/opc-core/permissions.manifest.json` 里，外壳声明 Markdown、画布和 `/home/br1efx/notes/`（含收集、视频审阅、卡片目录）的读写，以及 `/home/br1efx/.opc/` 和 `/home/br1efx/.opc/worktrees/` 的读写。外壳联网的主机是 `127.0.0.1` 和 `api.github.com`：前者给 M3 的 daemon 读本机 Magpie 和数据仓，后者给 opc-intake 用 `gh` 访问 GitHub。`m1-notes` 已启用，声明同样的笔记库和画布读写，不联网。收集要拉的网址由用户给出，拉页在 `@opc-os/page-fetch`，不把任意主机写进清单。`m2-card-wall` 已启用，只声明 `/home/br1efx/notes/cards/` 和 `_views/` 的读写，不联网。`m4-tasks` 已启用，声明同一卡片目录以及 `_workflows/`、`_sessions/`、`_schedules/` 的读写，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 的 `enabled` 仍是 false，不能预先写路径或主机。清单里的 `enabled` 是权限声明，不是界面上的开关。对照见 [verify.md](verify.md)。外壳开关见 [adr/0002](../adr/0002-d1-shell-and-cards.md)，网关见 [adr/0003](../adr/0003-d4-gateway-monitor.md)，笔记见 [adr/0004](../adr/0004-d2-notes.md)，卡片墙见 [adr/0005](../adr/0005-d3-card-wall.md)，任务见 [adr/0006](../adr/0006-d5a-tasks-workflows.md)，接单见 [adr/0007](../adr/0007-d5b-opc-intake.md)，画布和收集见 [adr/0008](../adr/0008-d6-canvas-embed-collect.md)。
+`plugins/opc-core/permissions.manifest.json` 里，外壳声明 Markdown、画布和 `/home/br1efx/notes/`（含收集、视频审阅、卡片目录）的读写，以及 `/home/br1efx/.opc/` 和 `/home/br1efx/.opc/worktrees/` 的读写。外壳联网的主机是 `127.0.0.1` 和 `api.github.com`：前者给 M3 的 daemon 读本机 Magpie 和数据仓，后者给 opc-intake 用 `gh` 访问 GitHub。`m1-notes` 已启用，声明同样的笔记库和画布读写，不联网。收集要拉的网址由用户给出，拉页在 `@opc-os/page-fetch`，不把任意主机写进清单。`m2-card-wall` 已启用，只声明 `/home/br1efx/notes/cards/` 和 `_views/` 的读写，不联网。`m4-tasks` 已启用，声明同一卡片目录以及 `_workflows/`、`_sessions/`、`_schedules/` 的读写，不联网。`m5-ui` 已启用，只读 `/home/br1efx/notes/cards/_ui/`，不写、不联网。`m3-gateway`、`m6-i18n` 的 `enabled` 仍是 false，不能预先写路径或主机。清单里的 `enabled` 是权限声明，不是界面上的开关。对照见 [verify.md](verify.md)。外壳开关见 [adr/0002](../adr/0002-d1-shell-and-cards.md)，网关见 [adr/0003](../adr/0003-d4-gateway-monitor.md)，笔记见 [adr/0004](../adr/0004-d2-notes.md)，卡片墙见 [adr/0005](../adr/0005-d3-card-wall.md)，任务见 [adr/0006](../adr/0006-d5a-tasks-workflows.md)，接单见 [adr/0007](../adr/0007-d5b-opc-intake.md)，画布和收集见 [adr/0008](../adr/0008-d6-canvas-embed-collect.md)。界面见 [adr/0009](../adr/0009-d7-ui-polish.md)。
 
 | 模块 | 目录 | 开关标识 | 现在 |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@
 | M2 卡片墙 / 动态看板 | `plugins/opc-core/modules/m2-card-wall` | `m2-card-wall` | 四个主视图和七个预置视图，从 `_views` 的定义文件渲染。同意、打回、指派会发给 Agent。转成任务进入开发流。「等你处理」对工单卡按阶段表计数。见 [adr/0005](../adr/0005-d3-card-wall.md) |
 | M3 网关与监控 | `plugins/opc-core/modules/m3-gateway` | `m3-gateway` | 今日花费、路由、请求日志、供应商健康、防封只读、主机进程、成本熔断。默认是标明的模拟花费。见 [gateway.md](gateway.md) |
 | M4 任务与工作流 | `plugins/opc-core/modules/m4-tasks` | `m4-tasks` | 三条工作流、从模板起任务、进度和卡住阶梯。定时命令默认不启用。任务页另有接单面板。见 [adr/0006](../adr/0006-d5a-tasks-workflows.md) 和 [adr/0007](../adr/0007-d5b-opc-intake.md) |
-| M5 界面优化 | `plugins/opc-core/modules/m5-ui` | `m5-ui` | 只有入口 |
+| M5 界面优化 | `plugins/opc-core/modules/m5-ui` | `m5-ui` | 显示名和图标分组、顶部状态条、老人模式。分组文件在卡片库 `_ui/`。见 [adr/0009](../adr/0009-d7-ui-polish.md) |
 | M6 汉化 | `plugins/opc-core/modules/m6-i18n` | `m6-i18n` | 只有入口。术语表见 [glossary.md](glossary.md) |
 
 这些目录不是 Paseo 的 `client/`、`server/`、`shared/`。里面不要放 `.ts` / `.tsx`，否则可能被插件的 TypeScript 配置扫到，也可能和 Paseo 的目录边界冲突。真正的模块代码放进那三个运行时目录。

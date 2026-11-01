@@ -94,4 +94,4 @@ OPC_DATAD_ADDR=127.0.0.1:3475 OPC_DATAD_DB=opc-datad.sqlite go run .
 
 ## 权限
 
-`permissions.manifest.json` 里外壳 `network.enabled` 为 true，`hosts` 只有 `127.0.0.1`。六个模块的 `enabled` 仍是 false。界面上的模块开关不改这份清单。
+`permissions.manifest.json` 里外壳 `network.enabled` 为 true，`hosts` 只有 `127.0.0.1`。`m5-ui` 已启用，只读分组目录，不联网。`m3-gateway` 和 `m6-i18n` 的 `enabled` 仍是 false。界面上的模块开关不改这份清单。

@@ -76,5 +76,9 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Defuddle | Defuddle | 文档里的正文抽取库。界面不出现这个名字。 |
 | Embed | 嵌入 | `opc-html` 围栏里的 HTML。电脑在沙箱里跑脚本，手机看静态图或「暂不可预览」。 |
 | 收集卡 | 收集卡 | `/收集` 或笔记库挑选写进收件箱的素材卡。来源、摘要、时间都在卡上。 |
+| 老人模式 | 老人模式 | 更大的字、行距和热区。父亲的面板默认开，你的面板默认关。手动开关记在这台面板上。 |
+| 状态条 | 状态条 | 页面顶部的门卫、额度和主机负载。缺数据写「暂无数据」。点一下打开网关与监控。 |
+| 显示名分组 | 显示名分组 | 侧栏按显示名和图标把会话分成组。配置在卡片库 `_ui/groups.yaml`，没有文件时用内置分组。 |
+| 纸面 | 纸面 | opc-os 自有的浅色主题，id 是 `opc-paper`。色值写在插件里，不是外部主题包。 |
 
-卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md)、[adr/0006](../adr/0006-d5a-tasks-workflows.md)、[adr/0007](../adr/0007-d5b-opc-intake.md) 和 [adr/0008](../adr/0008-d6-canvas-embed-collect.md)。
+卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md)、[adr/0006](../adr/0006-d5a-tasks-workflows.md)、[adr/0007](../adr/0007-d5b-opc-intake.md)、[adr/0008](../adr/0008-d6-canvas-embed-collect.md) 和 [adr/0009](../adr/0009-d7-ui-polish.md)。

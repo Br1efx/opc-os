@@ -7,7 +7,7 @@ export const MODULES = [
   { id: "m2-card-wall", title: "卡片墙", summary: "等你处理、状态看板、业务线和时间线。视图定义在卡片库里。" },
   { id: "m3-gateway", title: "网关与监控", summary: "今日花费、路由和成本熔断。管理页嵌在这台电脑上。" },
   { id: "m4-tasks", title: "任务与工作流", summary: "从模板起任务，看进度和卡住的卡。定时命令默认不启用。" },
-  { id: "m5-ui", title: "界面优化", summary: "外观和布局。这一版只有入口。" },
+  { id: "m5-ui", title: "界面优化", summary: "显示名和图标分组、顶部状态条、老人模式。分组写在卡片库的 _ui/groups.yaml。" },
   { id: "m6-i18n", title: "汉化", summary: "界面中文。术语表在仓库 docs/glossary.md，翻译还没接上。" },
 ] as const;
 

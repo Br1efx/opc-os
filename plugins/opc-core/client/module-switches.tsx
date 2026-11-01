@@ -6,10 +6,18 @@ import { MODULES, shellSettings, withModuleFlag, type ModuleFlags, type ModuleId
 import { applyModuleFlags, useModuleRegistration } from "./module-host";
 import { useScreenStyles } from "./screen-style";
 
-export function ModuleSwitches({ theme, compact }: { theme: PluginScreenProps["theme"]; compact: boolean }) {
+export function ModuleSwitches({
+  theme,
+  compact,
+  elder = false,
+}: {
+  theme: PluginScreenProps["theme"];
+  compact: boolean;
+  elder?: boolean;
+}) {
   useModuleRegistration();
   const settings = useSettings(shellSettings);
-  const styles = useScreenStyles(theme, compact);
+  const styles = useScreenStyles(theme, compact, elder);
   const ready = settings.status === "ready";
   const [pending, setPending] = useState<ModuleFlags | null>(null);
   const shown = ready ? (pending ?? settings.values.modules) : null;
