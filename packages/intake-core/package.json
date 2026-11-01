@@ -1,0 +1,27 @@
+{
+  "name": "@opc-os/intake-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "opc-intake 的接单引擎。源自 dsh-superagent src/core（MIT，commit 6337fc8）。",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "LICENSE"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "4.1.8"
+  }
+}

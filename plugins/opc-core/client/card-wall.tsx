@@ -5,6 +5,7 @@ import { CARD_TYPES, type CardType } from "@opc-os/card-protocol";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { queryCards, type QueryGroup, type ViewDefinition } from "../shared/bases";
+import { isIntakeAwaiting } from "../shared/intake-await";
 import { actCardRpc, createCardRpc, holdDeliveryRpc, listCardsRpc } from "../shared/cards-rpc";
 import {
   BUSINESS_LINES,
@@ -23,6 +24,7 @@ import {
 import { readTaskMeta, runtimeFromCard } from "../shared/task-doc";
 import { parseWorkflow, progressOf, stageTitle, type Workflow } from "../shared/workflow";
 import { deliverRole } from "./dispatch";
+import { INTAKE_TABS, IntakePanel, type IntakeTab } from "./intake-panel";
 import { StartTaskForm } from "./task-start";
 
 const listeners = new Set<() => void>();
@@ -104,6 +106,7 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [viewId, setViewId] = useState("awaiting");
+  const [intakeTab, setIntakeTab] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [taskOpen, setTaskOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -149,6 +152,8 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
 
   const selected = reading?.views.find((item) => item.id === viewId) ?? reading?.views[0] ?? null;
   const queried = reading && selected ? queryCards(reading.valid.map((item) => item.bag), selected, { now: reading.now }) : null;
+  const shownGroups =
+    queried && selected?.id === "awaiting" && reading ? filterAwaitingGroups(queried.groups, awaitingIds(reading)) : queried?.groups ?? null;
   const byId = new Map(reading?.valid.map((item) => [item.card.id, item]) ?? []);
 
   async function onCreate() {
@@ -237,8 +242,35 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
       {!reading ? <Text style={styles.detail}>正在读取卡片。</Text> : null}
       <View style={styles.tabs}>
         {reading?.views.map((item) => (
-          <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={item.title} onPress={() => setViewId(item.id)}>
-            <Text style={selected?.id === item.id ? styles.tabOn : styles.tab}>{item.title}</Text>
+          <Pressable
+            key={item.id}
+            accessibilityRole="button"
+            accessibilityLabel={item.title}
+            onPress={() => {
+              setIntakeTab("");
+              setViewId(item.id);
+            }}
+          >
+            <Text style={selected?.id === item.id && intakeTab === "" ? styles.tabOn : styles.tab}>{item.title}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={styles.tabs}>
+        {INTAKE_TABS.map((item) => (
+          <Pressable
+            key={item}
+            accessibilityRole="button"
+            accessibilityLabel={`接单${item}`}
+            onPress={() => {
+              if (item === "等你处理") {
+                setIntakeTab("");
+                setViewId("awaiting");
+                return;
+              }
+              setIntakeTab(item);
+            }}
+          >
+            <Text style={intakeTab === item || (item === "等你处理" && intakeTab === "" && viewId === "awaiting") ? styles.tabOn : styles.tab}>{item}</Text>
           </Pressable>
         ))}
       </View>
@@ -312,7 +344,8 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
       <Pressable accessibilityRole="button" onPress={refresh}>
         <Text style={styles.action}>刷新</Text>
       </Pressable>
-      {reading && selected && queried ? (
+      {intakeTab ? <IntakePanel tab={intakeTab as IntakeTab} theme={theme} /> : null}
+      {reading && selected && queried && shownGroups && !intakeTab ? (
         <Wall
           byId={byId}
           compact={compact}
@@ -320,7 +353,7 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
           now={reading.now}
           onAct={onAct}
           onResend={resend}
-          queriedGroups={queried.groups}
+          queriedGroups={shownGroups}
           styles={styles}
           theme={theme}
           view={selected}
@@ -329,6 +362,27 @@ export function CardWallScreen({ theme, layout }: PluginScreenProps) {
       ) : null}
     </ScrollView>
   );
+}
+
+function awaitingIds(reading: LibraryReading): Set<string> {
+  const view = reading.views.find((item) => item.id === "awaiting");
+  const matched = new Set(
+    view
+      ? queryCards(
+          reading.valid.map((item) => item.bag),
+          view,
+          { now: reading.now },
+        ).matched.map((item) => String(item.id ?? ""))
+      : [],
+  );
+  return new Set(reading.valid.filter((item) => isIntakeAwaiting(item.props, matched.has(item.card.id))).map((item) => item.card.id));
+}
+
+function filterAwaitingGroups(groups: QueryGroup[], ids: Set<string>): QueryGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    cards: group.cards.filter((bag) => ids.has(typeof bag.id === "string" ? bag.id : "")),
+  }));
 }
 
 function Wall({

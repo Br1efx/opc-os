@@ -1,5 +1,6 @@
 import type { PluginServerContext } from "@getpaseo/plugin/server";
 import { registerCards } from "./server/cards";
+import { registerIntake } from "./server/intake";
 import { registerGateway } from "./server/gateway";
 import { registerNotes } from "./server/notes";
 import { CORE_CARD_REVISION } from "./shared/card-ref";
@@ -15,8 +16,10 @@ export default function contribute(server: PluginServerContext) {
   const stopGateway = registerGateway(server);
   const stopNotes = registerNotes(server, settings);
   const stopCards = registerCards(server, settings);
+  const stopIntake = registerIntake(server, settings);
   void CORE_CARD_REVISION;
   return () => {
+    stopIntake();
     stopGateway();
     stopNotes();
     stopCards();

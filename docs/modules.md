@@ -4,14 +4,14 @@
 
 首页「一人公司 OS」和「设置」列出这六个模块，并带开关。开关保存在主机设置 `shell` 里，默认全部打开。关掉的模块不会登记页面，也不会出现在侧栏。模块界面崩了只显示「这块坏了」。
 
-`plugins/opc-core/permissions.manifest.json` 里，外壳声明 Markdown 读写，并联网，主机只有 `127.0.0.1`，给 M3 的 daemon 读本机 Magpie 和数据仓。`m1-notes` 已启用，同样声明 Markdown 读写，不联网。`m2-card-wall` 已启用，只声明 `/home/br1efx/notes/cards/` 和 `_views/` 的读写，不联网。`m4-tasks` 已启用，声明同一卡片目录以及 `_workflows/`、`_sessions/`、`_schedules/` 的读写，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 的 `enabled` 仍是 false，不能预先写路径或主机。清单里的 `enabled` 是权限声明，不是界面上的开关。对照见 [verify.md](verify.md)。外壳开关见 [adr/0002](../adr/0002-d1-shell-and-cards.md)，网关见 [adr/0003](../adr/0003-d4-gateway-monitor.md)，笔记见 [adr/0004](../adr/0004-d2-notes.md)，卡片墙见 [adr/0005](../adr/0005-d3-card-wall.md)，任务见 [adr/0006](../adr/0006-d5a-tasks-workflows.md)。
+`plugins/opc-core/permissions.manifest.json` 里，外壳声明 Markdown 读写，以及 `/home/br1efx/.opc/` 和 `/home/br1efx/.opc/worktrees/` 的读写。外壳联网的主机是 `127.0.0.1` 和 `api.github.com`：前者给 M3 的 daemon 读本机 Magpie 和数据仓，后者给 opc-intake 用 `gh` 访问 GitHub。`m1-notes` 已启用，同样声明 Markdown 读写，不联网。`m2-card-wall` 已启用，只声明 `/home/br1efx/notes/cards/` 和 `_views/` 的读写，不联网。`m4-tasks` 已启用，声明同一卡片目录以及 `_workflows/`、`_sessions/`、`_schedules/` 的读写，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 的 `enabled` 仍是 false，不能预先写路径或主机。清单里的 `enabled` 是权限声明，不是界面上的开关。对照见 [verify.md](verify.md)。外壳开关见 [adr/0002](../adr/0002-d1-shell-and-cards.md)，网关见 [adr/0003](../adr/0003-d4-gateway-monitor.md)，笔记见 [adr/0004](../adr/0004-d2-notes.md)，卡片墙见 [adr/0005](../adr/0005-d3-card-wall.md)，任务见 [adr/0006](../adr/0006-d5a-tasks-workflows.md)，接单见 [adr/0007](../adr/0007-d5b-opc-intake.md)。
 
 | 模块 | 目录 | 开关标识 | 现在 |
 | --- | --- | --- | --- |
 | M1 笔记 | `plugins/opc-core/modules/m1-notes` | `m1-notes` | 文件面板里的 Markdown。电脑可编辑，手机只读。含批注和锁定 |
-| M2 卡片墙 / 动态看板 | `plugins/opc-core/modules/m2-card-wall` | `m2-card-wall` | 四个主视图和七个预置视图，从 `_views` 的定义文件渲染。同意、打回、指派会发给 Agent。转成任务进入开发流。见 [adr/0005](../adr/0005-d3-card-wall.md) |
+| M2 卡片墙 / 动态看板 | `plugins/opc-core/modules/m2-card-wall` | `m2-card-wall` | 四个主视图和七个预置视图，从 `_views` 的定义文件渲染。同意、打回、指派会发给 Agent。转成任务进入开发流。「等你处理」对工单卡按阶段表计数。见 [adr/0005](../adr/0005-d3-card-wall.md) |
 | M3 网关与监控 | `plugins/opc-core/modules/m3-gateway` | `m3-gateway` | 今日花费、路由、请求日志、供应商健康、防封只读、主机进程、成本熔断。默认是标明的模拟花费。见 [gateway.md](gateway.md) |
-| M4 任务与工作流 | `plugins/opc-core/modules/m4-tasks` | `m4-tasks` | 三条工作流、从模板起任务、进度和卡住阶梯。定时命令默认不启用。见 [adr/0006](../adr/0006-d5a-tasks-workflows.md) |
+| M4 任务与工作流 | `plugins/opc-core/modules/m4-tasks` | `m4-tasks` | 三条工作流、从模板起任务、进度和卡住阶梯。定时命令默认不启用。任务页另有接单面板。见 [adr/0006](../adr/0006-d5a-tasks-workflows.md) 和 [adr/0007](../adr/0007-d5b-opc-intake.md) |
 | M5 界面优化 | `plugins/opc-core/modules/m5-ui` | `m5-ui` | 只有入口 |
 | M6 汉化 | `plugins/opc-core/modules/m6-i18n` | `m6-i18n` | 只有入口。术语表见 [glossary.md](glossary.md) |
 

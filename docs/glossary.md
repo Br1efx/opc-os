@@ -54,7 +54,7 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Settled | 已沉淀 | 问题或决策被同意之后停在这里。 |
 | Shelved | 搁置 | 先放着，不归档。 |
 | Archived | 归档 | 从墙上的待处理队列拿掉。状态看板里单独一列。 |
-| 等你处理 | 等你处理 | 默认视图，也是侧栏文字。预置筛选是收件箱。数量处理后下降。 |
+| 等你处理 | 等你处理 | 默认视图，也是侧栏文字。没有工单的卡仍按收件箱算。工单卡只在等人阶段计入：输入未送达、等你回答、等你验收、受阻、失败。 |
 | Project | 项目 | 卡片上的业务线。预置三列：父亲 AI 芝麻馆、Build in Public、插件开发。 |
 | Build in Public | Build in Public | 界面保留。这是一条业务线的名字，不是通用英文。 |
 | 想法 | 选题 | §1.2 的笔记种类。写入卡片前换成 `topic`。 |
@@ -67,5 +67,9 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Stage | 步骤 | 任务在工作流里的位置，例如实现、待你验收。机器名是 `stage`。缺省时界面写「未命名步骤」。 |
 | 缺证据 | 缺证据 | 还没有证据，不能进入待验收或完成。 |
 | 卡住了 | 卡住了 | 失败累计到阶梯之后的视图。级别大于等于 1 才算。 |
+| 工单 | 工单 | opc-intake 接进来的一件授权工作。阶段表和任务卡的生命周期不是同一根轴。 |
+| 调度员 | 调度员 | 只接单、挂单、停止或忽略。备注不超过 30 个词。代码拒绝等待。 |
+| 接单模式 | 接单模式 | `off` 不接，`observe` 只记「本来会接单」，`auto` 才执行。默认观察。 |
+| 本来会接单 | 本来会接单 | 观察模式下，名单里的人点名了机器人，引擎记下了，但没有开工。 |
 
-卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md) 和 [adr/0006](../adr/0006-d5a-tasks-workflows.md)。
+卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md)、[adr/0006](../adr/0006-d5a-tasks-workflows.md) 和 [adr/0007](../adr/0007-d5b-opc-intake.md)。

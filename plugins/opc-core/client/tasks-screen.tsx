@@ -6,6 +6,7 @@ import { listCardsRpc, archiveSessionsRpc, createScheduleRpc, listSchedulesRpc, 
 import { parseWorkflow, flowOf, type Workflow } from "../shared/workflow";
 import { trackedKind, type TrackedSession } from "../shared/sessions";
 import { notifyCardWallRefresh } from "./card-wall";
+import { IntakePanel } from "./intake-panel";
 import { useScreenStyles } from "./screen-style";
 import { StartTaskForm } from "./task-start";
 
@@ -165,6 +166,7 @@ export function TasksScreen({ theme, layout }: PluginScreenProps) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.colors.surface0 }} contentContainerStyle={{ padding: layout.compact ? 16 : 24, paddingBottom: 48 }}>
       <Text style={styles.title}>任务与工作流</Text>
+      <IntakePanel theme={theme} />
       <Text style={styles.detail}>模板在笔记库里。改文件后刷新，下一步按新模板走。需真机验证的步骤不会在这里假装已经跑过。</Text>
       {notice ? <Text style={styles.detail}>{notice}</Text> : null}
       {errors.map((item) => (
