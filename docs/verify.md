@@ -1,18 +1,18 @@
 # verify 门禁
 
-架构页「v2.0 · 插件体系总体架构与工程规范」§5 要求合并前通过 7 项。本仓库现在能强制执行其中 5 项。另外 2 项没有 Paseo 或手机打包工具链，脚本会标成 `DEFERRED`。`DEFERRED` 不是通过。
+架构页「v2.0 · 插件体系总体架构与工程规范」§5 要求合并前通过 7 项。本仓库现在能强制执行其中 5 项，并额外强制跑数据仓的 Go 测试。另外 2 项没有 Paseo 或手机打包工具链，脚本会标成 `DEFERRED`。`DEFERRED` 不是通过。数据仓测试不是那 7 项里的一项。
 
 | # | 项 | 现在 | 命令 |
 | --- | --- | --- | --- |
 | 1 | 类型检查 | 强制。失败则 `pnpm verify` 退出 1 | `pnpm typecheck` |
-| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，以及 `scripts/verify` 里的策略测试 | `pnpm test` |
+| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，`opc-core` 的外壳和网关测试，以及 `scripts/verify` 里的策略测试 | `pnpm test` |
 | 3 | 目录边界 | 强制 | `pnpm verify:boundary` |
 | 4 | 许可证扫描 | 强制 | `pnpm verify:license` |
 | 5 | 权限清单对照 | 强制 | `pnpm verify:manifest` |
 | 6 | 手机端打包 | 未执行 | `pnpm verify:mobile` |
 | 7 | 性能预算 | 只检查阈值文件；不测量 | `pnpm verify:perf` |
 
-`pnpm verify` 会跑 1–5，以及第 7 项的阈值文件。这些失败时退出码是 1。手机端打包和性能测量记为 `DEFERRED`，不让 `pnpm verify` 失败，也**不表示这两项通过**。GitHub Actions 工作流 `verify` 的 job 名叫 `enforced gates`。它变绿只说明强制项过了。
+`pnpm verify` 会跑 1–5，第 7 项的阈值文件，以及 `services/opc-datad` 的 `CGO_ENABLED=1 go test ./...`。这些失败时退出码是 1。手机端打包和性能测量记为 `DEFERRED`，不让 `pnpm verify` 失败，也**不表示这两项通过**。GitHub Actions 工作流 `verify` 的 job 名叫 `enforced gates`。它变绿说明这些强制项过了，包含数据仓测试，不包含手机端打包和性能测量。CI 会安装 Go 1.22 和 `libsqlite3-dev`。
 
 单独跑手机端命令时，没有执行打包的退出码是 2，不是 0。
 
@@ -20,7 +20,7 @@
 
 规则在 `config/directory-boundary.json`。
 
-- `plugins/opc-core` 顶层只能是清单里声明的文件和目录。`server/`、`shared/` 允许以后出现，现在还没有。
+- `plugins/opc-core` 顶层只能是清单里声明的文件和目录。`server/` 和 `shared/` 已经在用：网关逻辑在 `shared/`，读本机 Magpie 的代码在 `server/`。
 - `modules/` 下只能是 M1–M6 六个目录，里面只允许 Markdown。TypeScript 要放进 `client/`、`server/` 或 `shared/`。
 - `packages/` 不能 import `plugins/`。插件可以 import `@opc-os/card-protocol`。
 - 一个插件不能 import 另一个插件。
@@ -59,15 +59,19 @@
 
 ## 权限清单
 
-`plugins/opc-core/permissions.manifest.json` 是外壳的声明：不读文件、不写文件、不联网。六个模块 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
+`plugins/opc-core/permissions.manifest.json` 是外壳的声明：不读文件、不写文件。联网打开，主机只有 `127.0.0.1`，给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。六个模块 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
 
 对照方式：
 
 - 清单本身要能解析，`pluginId` 要等于 `paseo-plugin.json` 的 `id`，模块集合要和目录边界里的六个目录一致。
-- 扫 `opc-core` 的 `.ts` / `.tsx`。出现 `node:fs` 而 read/write 都是空的，失败。出现 `fetch`、`WebSocket` 或 `node:http` 而 `network.enabled` 不是 true，失败。
+- 扫 `opc-core` 的 `.ts` / `.tsx` / `.mts`。出现 `node:fs` 而 read/write 都是空的，失败。出现 `fetch`、`WebSocket` 或 `node:http` 而 `network.enabled` 不是 true，失败。
 - 联网打开之后，源码里的 `http(s)://` 主机必须出现在 `hosts`。没有字面量网址时失败，避免动态地址绕过清单。
 
-还做不到的部分：清单里一旦写了具体路径，扫描器**不能**证明源码只访问了这些路径。现在清单是空的，源码里也没有文件系统 API，所以这一缺口还没有被用到。
+还做不到的部分：清单里一旦写了具体路径，扫描器**不能**证明源码只访问了这些路径。文件权限仍然是空的，源码里也没有文件系统 API，所以这一缺口还没有被用到。扫描器只在文件真正调用了网络 API 时才核对网址；纯字符串里的地址不会单独触发这项检查。
+
+## 数据仓
+
+`pnpm verify` 在 `services/opc-datad` 里执行 `CGO_ENABLED=1 go test ./...`。失败退出 1。这不是上面 7 项里的一项。需要 Go 1.22 和 SQLite 头文件。驱动 `github.com/mattn/go-sqlite3` v1.14.24 的许可是 MIT。npm 许可证扫描看不到 Go 模块，这项许可写在 [adr/0003](../adr/0003-d4-gateway-monitor.md)。
 
 ## 手机端打包
 

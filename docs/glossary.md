@@ -35,5 +35,12 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | Registry | 插件目录 | GitHub Pages 上的静态 JSON，用来安装插件。 |
 | Verify | 门禁 | 合并前要过的检查。不过不许当通过。 |
 | Paseo | Paseo | 界面保留这个名字。插件装进它的手机和电脑客户端。 |
+| Magpie | Magpie | 界面保留这个名字。本机上的模型网关，opc-os 只外接，不把源码放进仓库。 |
+| Quota | 额度 | 供应商账户还剩多少。M3 只读，不刷新供应商。 |
+| Probe | 真机探测 | 打开后 daemon 才读本机 Magpie。关掉时手机看到标明的模拟花费。 |
+| Circuit breaker | 成本熔断 | 今日花费达到限额时出一张告警卡。 |
+| opc-datad | 数据仓 | 本机 Go 服务，把 OTLP 或等价写入收进 SQLite，再按 HTTP 读出。 |
+| Token Ledger | Token Ledger | 界面保留英文。本仓库没有单独账本，今日花费用 Magpie 用量里的 cost。 |
+| Host monitor | Host monitor | 界面保留英文。本仓库不采集 CPU 或内存，只显示网关自报的进程。 |
 
 卡片字段的机器可读名字在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。
