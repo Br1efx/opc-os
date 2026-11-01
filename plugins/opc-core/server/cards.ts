@@ -1,10 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { PluginHookContext, PluginServerContext, PluginSettings } from "@getpaseo/plugin/server";
 import { defineAgentTool } from "@getpaseo/plugin/server";
 import { z } from "zod";
-import { actionFromFields, createCardStore, type WorkflowSeed } from "../shared/cards";
+import { actionFromFields, createCardStore } from "../shared/cards";
 import {
   actCardRpc,
   archiveSessionsRpc,
@@ -21,19 +18,9 @@ import { dispatchRole, type RolePort } from "../shared/dispatch";
 import { shellSettings } from "../shared/shell";
 import { TASK_AGENT_CWD, TASK_AGENT_PROVIDER } from "../shared/workflow";
 import { createNodeCardFiles } from "./cards-fs";
+import { WORKFLOW_SEEDS } from "./workflow-seeds";
 
 const closed = "任务与工作流已关闭";
-
-function workflowSeeds(): WorkflowSeed[] {
-  const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../shared/workflows");
-  let names: string[] = [];
-  try {
-    names = fs.readdirSync(dir).filter((name) => name.endsWith(".yaml")).sort();
-  } catch {
-    return [];
-  }
-  return names.map((name) => ({ name, text: fs.readFileSync(path.join(dir, name), "utf8") }));
-}
 
 function rolePort(paseo: PluginHookContext["paseo"]): RolePort {
   return {
@@ -77,7 +64,7 @@ export function registerCards(
   server: PluginServerContext,
   settings: PluginSettings<(typeof shellSettings)["schema"]>,
 ): () => void {
-  const store = createCardStore(createNodeCardFiles(), undefined, workflowSeeds());
+  const store = createCardStore(createNodeCardFiles(), undefined, WORKFLOW_SEEDS);
   const tasksOn = () => moduleOn(settings, "m4-tasks");
   const cardsOn = () => moduleOn(settings, "m2-card-wall");
 
