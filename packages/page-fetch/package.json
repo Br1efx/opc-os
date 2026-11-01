@@ -1,0 +1,23 @@
+{
+  "name": "@opc-os/page-fetch",
+  "version": "0.0.0",
+  "private": true,
+  "description": "按用户给出的网址拉取 HTML。只允许公网的 http 和 https。",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["src"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-transform-types --test src/fetch.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^5.9.3"
+  }
+}

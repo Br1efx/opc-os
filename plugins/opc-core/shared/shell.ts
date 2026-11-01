@@ -3,7 +3,7 @@ import { z } from "zod";
 
 /** 外壳里的六个模块。标识与 modules/ 目录、权限清单一致。 */
 export const MODULES = [
-  { id: "m1-notes", title: "笔记", summary: "在文件面板里打开 Markdown。电脑可编辑，手机只读。" },
+  { id: "m1-notes", title: "笔记", summary: "在文件面板里打开 Markdown 和画布。电脑可编辑，手机只读。网址用 /收集 收进收件箱。" },
   { id: "m2-card-wall", title: "卡片墙", summary: "等你处理、状态看板、业务线和时间线。视图定义在卡片库里。" },
   { id: "m3-gateway", title: "网关与监控", summary: "今日花费、路由和成本熔断。管理页嵌在这台电脑上。" },
   { id: "m4-tasks", title: "任务与工作流", summary: "从模板起任务，看进度和卡住的卡。定时命令默认不启用。" },

@@ -71,5 +71,5 @@ export const SOURCE_PORTS = [
   { id: "telegram", title: "Telegram", enabled: false, detail: "只留端口，这一阶段不接。" },
   { id: "grok", title: "Grok", enabled: false, detail: "只留端口，这一阶段不接。" },
   { id: "schedule", title: "定时任务", enabled: false, detail: "只留端口，这一阶段不接。" },
-  { id: "collect", title: "收集", enabled: false, detail: "只留端口，这一阶段不接。" },
+  { id: "collect", title: "收集", enabled: false, detail: "笔记里的 /收集 会写进收件箱。接单仍不把收集当成正式来源。" },
 ] as const;

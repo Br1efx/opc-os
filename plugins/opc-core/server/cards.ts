@@ -64,7 +64,7 @@ async function moduleOn(
 export function registerCards(
   server: PluginServerContext,
   settings: PluginSettings<(typeof shellSettings)["schema"]>,
-): () => void {
+): { stop: () => void; store: ReturnType<typeof createCardStore> } {
   const store = createCardStore(createNodeCardFiles(), undefined, WORKFLOW_SEEDS);
   const tasksOn = () => moduleOn(settings, "m4-tasks");
   const cardsOn = () => moduleOn(settings, "m2-card-wall");
@@ -232,8 +232,11 @@ export function registerCards(
       // 目录写不进去时，不挡住这一轮别的钩子。
     }
   });
-  return () => {
-    stopOpen();
-    stopEnded();
+  return {
+    stop() {
+      stopOpen();
+      stopEnded();
+    },
+    store,
   };
 }

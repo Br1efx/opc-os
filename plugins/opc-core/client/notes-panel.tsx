@@ -21,6 +21,7 @@ import {
   resolveComment,
   type NoteComment,
 } from "../shared/notes";
+import { EmbedSection } from "./embed-section";
 import { mountNoteEditor, type NoteEditorHandle, type NoteSelection } from "./web";
 
 const SAVE_DELAY_MS = 500;
@@ -132,7 +133,7 @@ function Comments({
   );
 }
 
-function NotesEditor({ file, tab, theme, workspaceId, navigation }: PluginFilePanelProps) {
+function NotesEditor({ file, tab, theme, workspaceId, navigation, layout }: PluginFilePanelProps) {
   const { setModified } = tab;
   const parent = useRef<View>(null);
   const editor = useRef<NoteEditorHandle | null>(null);
@@ -360,6 +361,7 @@ function NotesEditor({ file, tab, theme, workspaceId, navigation }: PluginFilePa
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <View ref={parent} style={styles.editor} />
       {state === "loading" && !error ? <Loading /> : null}
+      <EmbedSection platform={layout.platform} text={body} theme={theme} />
       <Comments
         onCommit={(next) => editor.current?.replaceText(next)}
         text={body}
@@ -369,7 +371,7 @@ function NotesEditor({ file, tab, theme, workspaceId, navigation }: PluginFilePa
   );
 }
 
-function NotesReader({ file, theme }: PluginFilePanelProps) {
+function NotesReader({ file, theme, layout }: PluginFilePanelProps) {
   const disk = useFileText(file);
   const [local, setLocal] = useState<string | null>(null);
   const checkSave = useRpc(checkNoteSaveRpc);
@@ -433,6 +435,7 @@ function NotesReader({ file, theme }: PluginFilePanelProps) {
           )}
         </Text>
       </ScrollView>
+      <EmbedSection platform={layout.platform} text={text} theme={theme} />
       <Comments onCommit={(next) => void commit(next)} text={text} theme={theme} />
     </View>
   );
