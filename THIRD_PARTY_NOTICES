@@ -1,5 +1,22 @@
 # 第三方声明
 
+## @xyflow/react 12.8.6
+
+电脑上的画布拖拽。MIT。`plugins/opc-core/client/flow-style.ts` 收录其 `dist/style.css`，升级时要重新生成。界面保留 React Flow 水印。
+
+## defuddle 0.19.6
+
+收集时抽取网页正文。MIT。
+
+## linkedom 0.18.12
+
+给正文抽取提供文档实现。ISC。
+
+## react-dom 19.1.0
+
+画布拖拽的同伴依赖。MIT。与本仓库的 react 19.1.0 对齐。
+
+
 ## dsh-superagent core
 
 `packages/intake-core` 收录 https://github.com/deepseek-ai/dsh-superagent-prototype 的 `src/core`（commit `6337fc823ce20251c8de8085948165c81aaa701e`）及其 core 测试。

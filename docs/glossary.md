@@ -71,5 +71,10 @@ opc-os 的界面默认用中文。下表给文档和界面用同一套说法。�
 | 调度员 | 调度员 | 只接单、挂单、停止或忽略。备注不超过 30 个词。代码拒绝等待。 |
 | 接单模式 | 接单模式 | `off` 不接，`observe` 只记「本来会接单」，`auto` 才执行。默认观察。 |
 | 本来会接单 | 本来会接单 | 观察模式下，名单里的人点名了机器人，引擎记下了，但没有开工。 |
+| JSON Canvas | 画布 | 存在 `.canvas` 里的节点和连线。界面说「画布」，不把 JSON Canvas 写在按钮上。 |
+| React Flow | React Flow | 界面保留。电脑拖拽画布时角落的水印留着，不隐藏。 |
+| Defuddle | Defuddle | 文档里的正文抽取库。界面不出现这个名字。 |
+| Embed | 嵌入 | `opc-html` 围栏里的 HTML。电脑在沙箱里跑脚本，手机看静态图或「暂不可预览」。 |
+| 收集卡 | 收集卡 | `/收集` 或笔记库挑选写进收件箱的素材卡。来源、摘要、时间都在卡上。 |
 
-卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md)、[adr/0006](../adr/0006-d5a-tasks-workflows.md) 和 [adr/0007](../adr/0007-d5b-opc-intake.md)。
+卡片的公共字段在 `packages/card-protocol`：`id`、`type`、`status`、`title`、`oneLiner`、`owner`、`source`、`evidence`、`related`、`time`、`unread`。协议修订是 `d3`。任务还可以带 `goal`、`acceptance`、`due`、`dependsOn`、`workflow`、`stage`、`failCount`、`ladderLevel`。这些可以不出现，旧卡仍可读。业务线写在前言的 `project`，不属于公共字段。对照表在 [adr/0005](../adr/0005-d3-card-wall.md)、[adr/0006](../adr/0006-d5a-tasks-workflows.md)、[adr/0007](../adr/0007-d5b-opc-intake.md) 和 [adr/0008](../adr/0008-d6-canvas-embed-collect.md)。

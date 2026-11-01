@@ -111,7 +111,7 @@ export function scanManifest(root) {
   return {
     ok: true,
     detail:
-      "外壳和 m1-notes 声明了 Markdown 读写，外壳还声明 /home/br1efx/.opc/ 与 worktrees 读写。外壳联网允许 127.0.0.1 和 api.github.com。m2-card-wall 声明卡片目录和视图目录读写且不联网。m4-tasks 声明卡片目录以及工作流、会话、定时记录目录的读写，不联网。m3、m5、m6 仍是 enabled: false，不能声明主机。源码里的文件系统 API 落在已声明读写的外壳上，用到网络 API 的字面量主机都在外壳 hosts 里。具体路径仍不能逐条证明只访问了这些模式。",
+      "外壳和 m1-notes 声明了 Markdown 与画布读写，以及 /home/br1efx/notes/、收集、视频审阅和卡片目录。外壳还声明 /home/br1efx/.opc/ 与 worktrees 读写。外壳联网允许 127.0.0.1 和 api.github.com。m1 不联网：收集要拉的网址由用户给出，不能写进 hosts，拉页放在插件源码外的 @opc-os/page-fetch。m2-card-wall 声明卡片目录和视图目录读写且不联网。m4-tasks 声明卡片目录以及工作流、会话、定时记录目录的读写，不联网。m3、m5、m6 仍是 enabled: false，不能声明主机。源码里的文件系统 API 落在已声明读写的外壳上，用到网络 API 的字面量主机都在外壳 hosts 里。具体路径仍不能逐条证明只访问了这些模式。",
   };
 }
 

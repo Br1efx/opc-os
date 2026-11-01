@@ -2,8 +2,28 @@
   "schemaVersion": 1,
   "pluginId": "opc-core",
   "filesystem": {
-    "read": ["**/*.md", "**/*.markdown", "/home/br1efx/.opc/", "/home/br1efx/.opc/worktrees/"],
-    "write": ["**/*.md", "**/*.markdown", "/home/br1efx/.opc/", "/home/br1efx/.opc/worktrees/"]
+    "read": [
+      "**/*.md",
+      "**/*.markdown",
+      "**/*.canvas",
+      "/home/br1efx/notes/",
+      "/home/br1efx/notes/收集/",
+      "/home/br1efx/notes/视频审阅/",
+      "/home/br1efx/notes/cards/",
+      "/home/br1efx/.opc/",
+      "/home/br1efx/.opc/worktrees/"
+    ],
+    "write": [
+      "**/*.md",
+      "**/*.markdown",
+      "**/*.canvas",
+      "/home/br1efx/notes/",
+      "/home/br1efx/notes/收集/",
+      "/home/br1efx/notes/视频审阅/",
+      "/home/br1efx/notes/cards/",
+      "/home/br1efx/.opc/",
+      "/home/br1efx/.opc/worktrees/"
+    ]
   },
   "network": {
     "enabled": true,
@@ -12,7 +32,26 @@
   "modules": {
     "m1-notes": {
       "enabled": true,
-      "filesystem": { "read": ["**/*.md", "**/*.markdown"], "write": ["**/*.md", "**/*.markdown"] },
+      "filesystem": {
+        "read": [
+          "**/*.md",
+          "**/*.markdown",
+          "**/*.canvas",
+          "/home/br1efx/notes/",
+          "/home/br1efx/notes/收集/",
+          "/home/br1efx/notes/视频审阅/",
+          "/home/br1efx/notes/cards/"
+        ],
+        "write": [
+          "**/*.md",
+          "**/*.markdown",
+          "**/*.canvas",
+          "/home/br1efx/notes/",
+          "/home/br1efx/notes/收集/",
+          "/home/br1efx/notes/视频审阅/",
+          "/home/br1efx/notes/cards/"
+        ]
+      },
       "network": { "enabled": false, "hosts": [] }
     },
     "m2-card-wall": {

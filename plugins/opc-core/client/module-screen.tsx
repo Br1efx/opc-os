@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import { moduleById, type ModuleId } from "../shared/shell";
 import { CardWallScreen } from "./card-wall";
 import { GatewayScreen } from "./gateway-screen";
+import { NotesScreen } from "./notes-screen";
 import { useScreenStyles } from "./screen-style";
 import { TasksScreen } from "./tasks-screen";
 
@@ -36,6 +37,7 @@ export function ModuleScreen(props: PluginScreenProps & { moduleId: ModuleId }) 
 }
 
 function ModuleBody({ moduleId, ...props }: PluginScreenProps & { moduleId: ModuleId }) {
+  if (moduleId === "m1-notes") return <NotesScreen {...props} />;
   if (moduleId === "m2-card-wall") return <CardWallScreen {...props} />;
   if (moduleId === "m3-gateway") return <GatewayScreen {...props} />;
   if (moduleId === "m4-tasks") return <TasksScreen {...props} />;

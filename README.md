@@ -6,12 +6,12 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 ## 当前进度
 
-这里完成了阶段 D0 的脚手架，D1 里仓库自身能做的外壳，D2 的笔记，D3 的卡片墙，D4 的网关监控起步，以及 D5a 的任务与工作流：
+这里完成了阶段 D0 的脚手架，D1 里仓库自身能做的外壳，D2 的笔记，D3 的卡片墙，D4 的网关监控起步，D5a 的任务与工作流，D5b 的接单，以及 D6 的画布、嵌入和一键收集：
 
 - 中文说明、`docs/`、`adr/`、[术语表](docs/glossary.md)
 - pnpm workspace，覆盖 `plugins/*` 与 `packages/*`
 - `packages/card-protocol` 的卡片类型和校验，以及单元测试
-- `plugins/opc-core`：首页列出 M1–M6 并可开关，另有设置和通知入口。M1 在文件面板里打开 Markdown：电脑可编辑，手机只读，含批注和锁定
+- `plugins/opc-core`：首页列出 M1–M6 并可开关，另有设置和通知入口。M1 在文件面板里打开 Markdown 和画布：电脑可编辑，手机只读，含批注、锁定、嵌入和 `/收集`。见 [adr/0008](adr/0008-d6-canvas-embed-collect.md)
 - M2 卡片墙：Markdown 卡片、十一个视图、筛选排序分组，以及同意、打回、指派。见 [adr/0005](adr/0005-d3-card-wall.md)
 - M4 任务与工作流：三条模板、证据守卫、卡住阶梯，以及默认不启用的定时命令。见 [adr/0006](adr/0006-d5a-tasks-workflows.md)
 - M3 外接本机 Magpie：今日花费、管理页、打标签、成本熔断，以及 `services/opc-datad`。见 [docs/gateway.md](docs/gateway.md)
@@ -25,7 +25,7 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 - 在桌面或手机上点开这些页面（类型检查通过对过，没有在 me 面板上目测）
 - 在真机上点过起任务、派工、归档和定时命令。这些标了需真机验证
-- M5、M6 的功能。现在只有入口和开关。M1 的笔记 v1 在文件面板上，见 [adr/0004](adr/0004-d2-notes.md)。M2 的卡片墙见 [adr/0005](adr/0005-d3-card-wall.md)。M4 见 [adr/0006](adr/0006-d5a-tasks-workflows.md)。画布还没有做。D5b 的调度员没有做
+- M5、M6 的功能。现在只有入口和开关。M1 的笔记在文件面板上，见 [adr/0004](adr/0004-d2-notes.md)。画布、嵌入和 `/收集` 见 [adr/0008](adr/0008-d6-canvas-embed-collect.md)。M2 的卡片墙见 [adr/0005](adr/0005-d3-card-wall.md)。M4 见 [adr/0006](adr/0006-d5a-tasks-workflows.md)。D5b 的接单见 [adr/0007](adr/0007-d5b-opc-intake.md)。Telegram、浏览器剪藏和 Grok 转交还没接通，见 [docs/collect-ports.md](docs/collect-ports.md)
 - 完整的父亲视频采集，以及把 Magpie 源码放进仓库
 
 架构里规划的外围插件（`opc-grok`、`opc-telegram`、`opc-collect-*`）和 `render-queue` 也不在本目录中。`opc-datad` 只有本机写入和读出，见 [docs/gateway.md](docs/gateway.md)。
@@ -34,8 +34,9 @@ opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) �
 
 ```text
 opc-os/
-├─ plugins/opc-core          核心插件外壳，含 M1 笔记、M2 卡片墙、M3 网关页和 M4 任务
+├─ plugins/opc-core          核心插件外壳，含 M1 笔记与画布、M2 卡片墙、M3 网关页和 M4 任务
 ├─ packages/card-protocol    统一卡片类型和校验
+├─ packages/page-fetch       收集时拉取公网页面
 ├─ services/opc-datad        本机数据仓（Go / SQLite）
 ├─ registry/                 GitHub Pages 上的插件 registry
 ├─ docs/                     说明与实验占位

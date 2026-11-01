@@ -10,7 +10,9 @@ import {
   type ModuleFlags,
   type ModuleId,
 } from "../shared/shell";
+import { CanvasFilePanel } from "./canvas-panel";
 import { CardWallNav } from "./card-wall";
+import { registerCollectClient } from "./collect-client";
 import { ModuleScreen } from "./module-screen";
 import { NotesFilePanel } from "./notes-panel";
 
@@ -82,10 +84,23 @@ function registerModule(client: PluginClientContext, id: ModuleId): () => void {
           Component: NotesFilePanel,
         })
       : null;
+  const removeCanvas =
+    id === "m1-notes"
+      ? client.addFilePanel({
+          id: "opc-canvas",
+          title: "画布",
+          icon: "Network",
+          files: { extensions: ["canvas"] },
+          Component: CanvasFilePanel,
+        })
+      : null;
+  const removeCollect = id === "m1-notes" ? registerCollectClient(client) : null;
   return () => {
     removeScreen();
     removeItem();
     removePanel?.();
+    removeCanvas?.();
+    removeCollect?.();
   };
 }
 

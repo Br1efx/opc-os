@@ -1,7 +1,7 @@
 {
   "id": "opc-core",
   "name": "一人公司 OS",
-  "description": "一人公司操作系统的核心插件。含模块开关、设置、通知，以及文件面板里的 Markdown 笔记。",
+  "description": "一人公司操作系统的核心插件。含模块开关、设置、通知、文件面板笔记、画布和一键收集。",
   "$comment": "D0 scaffold aligned with paseo plugin init. Icon and media stay empty until a real listing exists.",
   "media": [],
   "requirements": {
