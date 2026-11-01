@@ -12,10 +12,10 @@ plugins/opc-core/
 ├─ OVERVIEW.md
 ├─ OVERVIEW.zh-CN.md
 ├─ index.client.tsx     界面端：首页、设置、通知，以及打开的模块
-├─ index.server.ts      服务端：主机设置、网关快照、批注工具、锁定还原、卡片读写
+├─ index.server.ts      服务端：主机设置、网关快照、批注工具、锁定还原、卡片读写、接单
 ├─ client/              页面、文件面板、模块开关、网关页、卡片墙、任务页
-├─ server/              读本机 Magpie、写入 opc-datad，以及笔记、卡片和任务
-├─ shared/              开关、批注、锁定、网关快照、卡片协议引用、视图查询和工作流模板
+├─ server/              读本机 Magpie、写入 opc-datad，笔记、卡片、任务，以及接单状态机
+├─ shared/              开关、批注、锁定、网关快照、卡片协议引用、视图查询、工作流模板、接单 RPC
 └─ modules/             六个模块的说明，不是运行时代码
 ```
 
@@ -27,3 +27,5 @@ plugins/opc-core/
 4. `tsconfig.json` 的 `lib` 只有 `ES2023`，没有 DOM。`types` 含 `node`，给服务端的 `node:fs` 用。界面使用 React Native 组件和主题色。编辑器在 `client/web.ts` 里按需 `require` CodeMirror 6，依赖写在 `package.json`，许可证是 MIT。
 5. `modules/` 只有 Markdown。假定 Paseo 编译器不会把该目录当成代码入口。若真机编译拒绝未知目录，把说明移回 `docs/`，代码放进 `client/`、`server/`、`shared/`。
 6. 开发依赖用于本地 `tsc --noEmit` 和单测。`package.json` 写了 `"type": "module"`，这样 Node 能直接跑 `shared/*.test.mts` 和 `server/*.test.mts`。接单测试要加载上游 core 里的参数属性，所以这条命令用 `--experimental-transform-types`，而不是只剥类型。Paseo 在运行时提供界面模块，安装插件的人不需要单独安装它们。本地类型检查通过，不等于插件已经能在 Paseo 里加载。
+
+Paseo 从插件入口顺着依赖走。文件一旦位于 `shared/`，传递依赖就按 shared bundle 检查，禁止 `node:`，即使只有服务端入口引用它。接单状态机 `IntakeFlow` 因此放在 `server/intake-flow.ts`：它要调用 `@opc-os/intake-core`，而 `packages/intake-core/src/ids.ts` 用 `node:crypto`。客户端面板只走 RPC，不引用这台状态机。`@opc-os/intake-core` 留在普通 `dependencies` 里，因为 daemon 打包仍要解析它；依赖字段本身不会把它送进 shared bundle。me 用目录安装升到该修复合并后的 SHA，再执行 `paseo plugin reload opc-core`，应能 running。真机由 Infra 验。

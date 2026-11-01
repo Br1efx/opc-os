@@ -1,3 +1,8 @@
+/**
+ * 接单状态机只在 daemon 上跑。
+ * 放在 server/：Paseo 把 shared/ 的传递依赖编进 shared bundle，
+ * 而 @opc-os/intake-core 的 ids.ts 用 node:crypto 生成稳定 id。
+ */
 import {
   Engine,
   MemoryRepositories,
@@ -12,12 +17,12 @@ import {
   type Trigger,
   type TriggerDisposition,
 } from "@opc-os/intake-core";
-import { AUTO_MERGE, formatAuto, GITHUB_BOT, guardDispatcher, scopeOf, truncateWords, widensScope } from "./dispatcher";
-import { stageLabel } from "./intake-await";
-import type { IntakeCard } from "./intake-card";
-import { mentionsBot, type GithubComment } from "./github-source";
-import { senderAllowed, type PolicyDocument } from "./policy";
-import { retryDelayMs } from "./retry";
+import { AUTO_MERGE, formatAuto, GITHUB_BOT, guardDispatcher, scopeOf, truncateWords, widensScope } from "../shared/dispatcher";
+import { stageLabel } from "../shared/intake-await";
+import type { IntakeCard } from "../shared/intake-card";
+import { mentionsBot, type GithubComment } from "../shared/github-source";
+import { senderAllowed, type PolicyDocument } from "../shared/policy";
+import { retryDelayMs } from "../shared/retry";
 
 export type OutboxItem = {
   id: string;

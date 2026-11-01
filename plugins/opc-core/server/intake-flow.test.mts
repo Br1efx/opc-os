@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import { ticketStage, type Assignment, type ReportState, type Ticket } from "@opc-os/intake-core";
-import { readLibrary, renderCardDocument } from "./cards.ts";
+import { readLibrary, renderCardDocument } from "../shared/cards.ts";
 import {
   AUTO_MERGE,
   AUTO_PREFIX,
@@ -15,15 +15,15 @@ import {
   scopeOf,
   toolsForRole,
   widensScope,
-} from "./dispatcher.ts";
-import { planExecutorAgent } from "./executor-plan.ts";
-import { commentCreateArgs, githubCommand, mentionsBot, parseComments } from "./github-source.ts";
-import { STAGE_TABLE, awaitingCardIds, isIntakeAwaiting, stageLabel } from "./intake-await.ts";
-import { renderIntakeCard, type IntakeCard } from "./intake-card.ts";
+} from "../shared/dispatcher.ts";
+import { planExecutorAgent } from "../shared/executor-plan.ts";
+import { commentCreateArgs, githubCommand, mentionsBot, parseComments } from "../shared/github-source.ts";
+import { STAGE_TABLE, awaitingCardIds, isIntakeAwaiting, stageLabel } from "../shared/intake-await.ts";
+import { renderIntakeCard, type IntakeCard } from "../shared/intake-card.ts";
 import { IntakeFlow, mentionTrigger } from "./intake-flow.ts";
-import { DEFAULT_POLICY_TEXT } from "./policy-default.ts";
-import { defaultPolicy, parsePolicy, type PolicyDocument } from "./policy.ts";
-import { retryDelayMs } from "./retry.ts";
+import { DEFAULT_POLICY_TEXT } from "../shared/policy-default.ts";
+import { defaultPolicy, parsePolicy, type PolicyDocument } from "../shared/policy.ts";
+import { retryDelayMs } from "../shared/retry.ts";
 
 const at = "2026-11-01T00:00:00.000Z";
 

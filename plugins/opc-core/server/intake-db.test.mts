@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { IntakeFlow, mentionTrigger } from "../shared/intake-flow.ts";
+import { IntakeFlow, mentionTrigger } from "./intake-flow.ts";
 import { defaultPolicy } from "../shared/policy.ts";
 import { openIntakeDb, readFlowState, resolveOpcHome, writeFlowState } from "./intake-db.ts";
 import { createTicketWorktree, worktreeArgs } from "./worktree.ts";
