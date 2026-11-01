@@ -1,5 +1,14 @@
 # opc-os
 
+> [!WARNING]
+> **暂停维护**
+>
+> 本仓库与 v2.x / opc-core 已按一人公司 OS 方案 v3.0 冻结：不改代码、不加功能、不删仓库。
+>
+> 面板已卸载 opc-core。后续以官方插件 + agent-kit 四角色为准。
+>
+> 仓库保留公开，仅作历史与参考。
+
 opc-os（一人公司操作系统）是一套装进 [Paseo](https://paseo.sh) 的开源插件。核心插件 `opc-core` 提供外壳：首页、模块开关、设置和通知。共享包 `card-protocol` 定义统一卡片的类型和校验，供各模块共用。
 
 本仓库使用 MIT 许可。版权与许可全文见 [LICENSE](LICENSE)（Copyright (c) 2026 Br1efx）。分发时请保留该声明。
