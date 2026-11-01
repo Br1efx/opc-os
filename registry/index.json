@@ -16,11 +16,11 @@
     {
       "id": "br1efx/opc-core",
       "name": "一人公司 OS",
-      "description": "一人公司操作系统的核心插件外壳。含模块开关、设置和通知入口，以及卡片协议。",
+      "description": "一人公司操作系统的核心插件外壳。在模块开关、设置和通知入口以及卡片协议之上，外接 Magpie 网关与监控，并带上 opc-datad 与成本熔断。",
       "translations": {
         "zh-CN": {
           "name": "一人公司 OS",
-          "description": "一人公司操作系统的核心插件外壳。含模块开关、设置和通知入口，以及卡片协议。"
+          "description": "一人公司操作系统的核心插件外壳。在模块开关、设置和通知入口以及卡片协议之上，外接 Magpie 网关与监控，并带上 opc-datad 与成本熔断。"
         }
       },
       "license": "MIT",
@@ -31,20 +31,20 @@
       },
       "repository": {
         "url": "https://github.com/Br1efx/opc-os",
-        "commit": "4b7248180e191947c749714641cfb4160dcb6988"
+        "commit": "bb97167c8ed8584738f3057b10902553154b7c60"
       },
       "artifact": {
         "kind": "git",
         "remote": "https://github.com/Br1efx/opc-os.git",
-        "commit": "4b7248180e191947c749714641cfb4160dcb6988",
+        "commit": "bb97167c8ed8584738f3057b10902553154b7c60",
         "pluginPath": "plugins/opc-core"
       },
       "media": [],
-      "submittedAt": "2026-10-31T22:39:54.000Z",
-      "reviewedAt": "2026-10-31T22:39:54.000Z",
-      "updatedAt": "2026-10-31T22:39:54.000Z",
-      "publishedAt": "2026-10-31T22:39:54.000Z"
+      "submittedAt": "2026-11-01T00:53:09.000Z",
+      "reviewedAt": "2026-11-01T00:53:09.000Z",
+      "updatedAt": "2026-11-01T00:53:09.000Z",
+      "publishedAt": "2026-11-01T00:53:09.000Z"
     }
   ],
-  "generatedAt": "2026-10-31T22:39:54.000Z"
+  "generatedAt": "2026-11-01T00:53:09.000Z"
 }
