@@ -22,3 +22,4 @@
 | [0006](0006-d5a-tasks-workflows.md) | 已接受 | D5a 的任务字段、工作流和卡住阶梯 |
 | [0007](0007-d5b-opc-intake.md) | 已接受 | D5b 的 opc-intake 接单引擎和调度员 |
 | [0008](0008-d6-canvas-embed-collect.md) | 已接受 | D6 的画布、嵌入和一键收集 |
+| [0009](0009-d7-ui-polish.md) | 已接受 | D7 的界面优化 |

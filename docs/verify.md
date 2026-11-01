@@ -59,7 +59,7 @@
 
 ## 权限清单
 
-`plugins/opc-core/permissions.manifest.json` 里，外壳和已启用的 `m1-notes` 声明 `**/*.md`、`**/*.markdown` 与 `**/*.canvas` 的读写，以及 `/home/br1efx/notes/`、`收集/`、`视频审阅/` 和 `cards/`。外壳另外声明 `/home/br1efx/.opc/` 和 `/home/br1efx/.opc/worktrees/` 的读写，给接单状态库和工作副本。外壳联网打开，主机是 `127.0.0.1` 和 `api.github.com`。`127.0.0.1` 给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。`api.github.com` 给 opc-intake 经 `gh` 访问 opc-os，不在进程里写死令牌。`m1-notes` 不联网。收集的网址是用户临时给的，扫描器对不上字面量主机，所以拉页放在 `@opc-os/page-fetch`，插件源码里不写 `fetch`。`m2-card-wall` 已启用，读写只声明 `/home/br1efx/notes/cards/` 和 `/home/br1efx/notes/cards/_views/`，不联网。`m4-tasks` 已启用，读写声明 `/home/br1efx/notes/cards/` 以及 `_workflows/`、`_sessions/`、`_schedules/`，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 仍是 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
+`plugins/opc-core/permissions.manifest.json` 里，外壳和已启用的 `m1-notes` 声明 `**/*.md`、`**/*.markdown` 与 `**/*.canvas` 的读写，以及 `/home/br1efx/notes/`、`收集/`、`视频审阅/` 和 `cards/`。外壳另外声明 `/home/br1efx/.opc/` 和 `/home/br1efx/.opc/worktrees/` 的读写，给接单状态库和工作副本。外壳联网打开，主机是 `127.0.0.1` 和 `api.github.com`。`127.0.0.1` 给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。`api.github.com` 给 opc-intake 经 `gh` 访问 opc-os，不在进程里写死令牌。`m1-notes` 不联网。收集的网址是用户临时给的，扫描器对不上字面量主机，所以拉页放在 `@opc-os/page-fetch`，插件源码里不写 `fetch`。`m2-card-wall` 已启用，读写只声明 `/home/br1efx/notes/cards/` 和 `/home/br1efx/notes/cards/_views/`，不联网。`m4-tasks` 已启用，读写声明 `/home/br1efx/notes/cards/` 以及 `_workflows/`、`_sessions/`、`_schedules/`，不联网。`m5-ui` 已启用，只读 `/home/br1efx/notes/cards/_ui/`，不写、不联网。`m3-gateway`、`m6-i18n` 仍是 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
 
 对照方式：
 

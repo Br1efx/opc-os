@@ -15,6 +15,8 @@ import { CardWallNav } from "./card-wall";
 import { registerCollectClient } from "./collect-client";
 import { ModuleScreen } from "./module-screen";
 import { NotesFilePanel } from "./notes-panel";
+import { RoleSidebar } from "./role-list";
+import { bindShellNavigation, clearShellNavigation } from "./shell-nav";
 
 const MODULE_ICONS: Record<ModuleId, string> = {
   "m1-notes": "NotebookPen",
@@ -30,6 +32,7 @@ const registrations = new Map<ModuleId, () => void>();
 
 export function bindShellClient(client: PluginClientContext) {
   bound = client;
+  bindShellNavigation((input) => client.openScreen(input));
 }
 
 /** 按已保存的开关登记或卸下模块页面和侧栏项。 */
@@ -48,6 +51,7 @@ export function disposeModuleRegistrations() {
   for (const remove of registrations.values()) remove();
   registrations.clear();
   bound = null;
+  clearShellNavigation();
 }
 
 function registerModule(client: PluginClientContext, id: ModuleId): () => void {
@@ -64,6 +68,7 @@ function registerModule(client: PluginClientContext, id: ModuleId): () => void {
     title: mod.title,
     Component: function ModuleItem(props: PluginSidebarItemProps) {
       if (mod.id === "m2-card-wall") return <CardWallNav {...props} />;
+      if (mod.id === "m5-ui") return <RoleSidebar {...props} />;
       return (
         <SidebarRow
           icon={MODULE_ICONS[mod.id]}

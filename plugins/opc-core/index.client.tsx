@@ -84,6 +84,21 @@ export default function contribute(client: PluginClientContext) {
       schema: noteNoticeDataSchema,
       Component: NoteNoticeItem,
     }),
+    client.addTheme({
+      id: "opc-paper",
+      name: "纸面",
+      appearance: "light",
+      colors: {
+        background: "#f3f0e7",
+        foreground: "#1c2430",
+        raised: "#fffaf3",
+        control: "#e4ebe4",
+        border: "#c9d5cc",
+        accent: "#0b6b4f",
+        mutedForeground: "#5e6a62",
+        ring: "#7f9488",
+      },
+    }),
   ];
   return () => {
     disposeModuleRegistrations();

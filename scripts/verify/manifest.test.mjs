@@ -19,6 +19,11 @@ test("清单结构有效，未启用模块不能预先声明权限", () => {
   assert.equal(manifest.modules["m2-card-wall"].network.enabled, false);
   assert.ok(manifest.modules["m2-card-wall"].filesystem.read.includes("/home/br1efx/notes/cards/"));
   assert.ok(manifest.modules["m2-card-wall"].filesystem.write.includes("/home/br1efx/notes/cards/_views/"));
+  assert.equal(manifest.modules["m5-ui"].enabled, true);
+  assert.equal(manifest.modules["m5-ui"].network.enabled, false);
+  assert.deepEqual(manifest.modules["m5-ui"].filesystem.write, []);
+  assert.ok(manifest.modules["m5-ui"].filesystem.read.includes("/home/br1efx/notes/cards/_ui/"));
+  assert.equal(manifest.modules["m6-i18n"].enabled, false);
   assert.ok(manifest.filesystem.read.includes("**/*.md"));
   assert.ok(manifest.modules["m1-notes"].filesystem.write.includes("**/*.markdown"));
   const opened = structuredClone(manifest);
