@@ -16,11 +16,11 @@
     {
       "id": "br1efx/opc-core",
       "name": "一人公司 OS",
-      "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎、D5a 任务字段、工作流和卡住阶梯，以及 Paseo 安装路径修复之上，加上 D5b：opc-intake 接单引擎（默认观察模式）、工单阶段和 GitHub 端口。packages/intake-core 来自上游 6337fc8。不自动合并 PR。这份 registry 把安装提交钉到 18e0960a6240c7d141889c8fa7ae98fa927f0b59。修了 intake 状态机进 shared bundle 导致 node:crypto 打包失败（IntakeFlow 挪到 server）。这一版加上 D6：JSON Canvas（电脑用 xyflow 拖拽，手机只读）、Embed（电脑 iframe，手机截图降级）、/收集 和附件来源做实，Telegram、剪藏和 Grok 三入口只留端口。",
+      "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎、D5a 任务字段、工作流和卡住阶梯，以及 Paseo 安装路径修复之上，加上 D5b：opc-intake 接单引擎（默认观察模式）、工单阶段和 GitHub 端口。packages/intake-core 来自上游 6337fc8。不自动合并 PR。这份 registry 把安装提交钉到 a48dc49beee2df83f0878e412857958dd550e36b。修了 intake 状态机进 shared bundle 导致 node:crypto 打包失败（IntakeFlow 挪到 server）。这一版加上 D6：JSON Canvas（电脑用 xyflow 拖拽，手机只读）、Embed（电脑 iframe，手机截图降级）、/收集 和附件来源做实，Telegram、剪藏和 Grok 三入口只留端口。这一版加上 D7：显示名分组、顶部状态条，老人模式 dad 默认开、me 默认关；不卸 Better Paseo、Sidebar Organizer 和 Title Style。",
       "translations": {
         "zh-CN": {
           "name": "一人公司 OS",
-          "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎、D5a 任务字段、工作流和卡住阶梯，以及 Paseo 安装路径修复之上，加上 D5b：opc-intake 接单引擎（默认观察模式）、工单阶段和 GitHub 端口。packages/intake-core 来自上游 6337fc8。不自动合并 PR。这份 registry 把安装提交钉到 18e0960a6240c7d141889c8fa7ae98fa927f0b59。修了 intake 状态机进 shared bundle 导致 node:crypto 打包失败（IntakeFlow 挪到 server）。这一版加上 D6：JSON Canvas（电脑用 xyflow 拖拽，手机只读）、Embed（电脑 iframe，手机截图降级）、/收集 和附件来源做实，Telegram、剪藏和 Grok 三入口只留端口。"
+          "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎、D5a 任务字段、工作流和卡住阶梯，以及 Paseo 安装路径修复之上，加上 D5b：opc-intake 接单引擎（默认观察模式）、工单阶段和 GitHub 端口。packages/intake-core 来自上游 6337fc8。不自动合并 PR。这份 registry 把安装提交钉到 a48dc49beee2df83f0878e412857958dd550e36b。修了 intake 状态机进 shared bundle 导致 node:crypto 打包失败（IntakeFlow 挪到 server）。这一版加上 D6：JSON Canvas（电脑用 xyflow 拖拽，手机只读）、Embed（电脑 iframe，手机截图降级）、/收集 和附件来源做实，Telegram、剪藏和 Grok 三入口只留端口。这一版加上 D7：显示名分组、顶部状态条，老人模式 dad 默认开、me 默认关；不卸 Better Paseo、Sidebar Organizer 和 Title Style。"
         }
       },
       "license": "MIT",
@@ -31,20 +31,20 @@
       },
       "repository": {
         "url": "https://github.com/Br1efx/opc-os",
-        "commit": "18e0960a6240c7d141889c8fa7ae98fa927f0b59"
+        "commit": "a48dc49beee2df83f0878e412857958dd550e36b"
       },
       "artifact": {
         "kind": "git",
         "remote": "https://github.com/Br1efx/opc-os.git",
-        "commit": "18e0960a6240c7d141889c8fa7ae98fa927f0b59",
+        "commit": "a48dc49beee2df83f0878e412857958dd550e36b",
         "pluginPath": "plugins/opc-core"
       },
       "media": [],
-      "submittedAt": "2026-11-01T06:12:03.000Z",
-      "reviewedAt": "2026-11-01T06:12:03.000Z",
-      "updatedAt": "2026-11-01T06:12:03.000Z",
-      "publishedAt": "2026-11-01T06:12:03.000Z"
+      "submittedAt": "2026-11-01T06:44:23.000Z",
+      "reviewedAt": "2026-11-01T06:44:23.000Z",
+      "updatedAt": "2026-11-01T06:44:23.000Z",
+      "publishedAt": "2026-11-01T06:44:23.000Z"
     }
   ],
-  "generatedAt": "2026-11-01T06:12:03.000Z"
+  "generatedAt": "2026-11-01T06:44:23.000Z"
 }
