@@ -5,7 +5,7 @@
 | # | 项 | 现在 | 命令 |
 | --- | --- | --- | --- |
 | 1 | 类型检查 | 强制。失败则 `pnpm verify` 退出 1 | `pnpm typecheck` |
-| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，`opc-core` 的外壳和网关测试，以及 `scripts/verify` 里的策略测试 | `pnpm test` |
+| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，`opc-core` 的外壳、网关和接单测试，`intake-core` 的上游 core 测试，以及 `scripts/verify` 里的策略测试 | `pnpm test` |
 | 3 | 目录边界 | 强制 | `pnpm verify:boundary` |
 | 4 | 许可证扫描 | 强制 | `pnpm verify:license` |
 | 5 | 权限清单对照 | 强制 | `pnpm verify:manifest` |
@@ -22,7 +22,7 @@
 
 - `plugins/opc-core` 顶层只能是清单里声明的文件和目录。`server/` 和 `shared/` 已经在用：网关逻辑在 `shared/`，读本机 Magpie 的代码在 `server/`。
 - `modules/` 下只能是 M1–M6 六个目录，里面只允许 Markdown。TypeScript 要放进 `client/`、`server/` 或 `shared/`。
-- `packages/` 不能 import `plugins/`。插件可以 import `@opc-os/card-protocol`。
+- `packages/` 不能 import `plugins/`。插件可以 import `@opc-os/card-protocol` 和 `@opc-os/intake-core`。
 - 一个插件不能 import 另一个插件。
 - 界面端（`index.client.tsx`、`client/`）不能 import 服务端 SDK 或 `server/`。服务端和 `shared/` 不能 import `react-native`、界面端 SDK 或 `client/`。
 
@@ -59,7 +59,7 @@
 
 ## 权限清单
 
-`plugins/opc-core/permissions.manifest.json` 里，外壳和已启用的 `m1-notes` 声明 `**/*.md` 与 `**/*.markdown` 的读写。外壳联网打开，主机只有 `127.0.0.1`，给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。`m1-notes` 不联网。`m2-card-wall` 已启用，读写只声明 `/home/br1efx/notes/cards/` 和 `/home/br1efx/notes/cards/_views/`，不联网。`m4-tasks` 已启用，读写声明 `/home/br1efx/notes/cards/` 以及 `_workflows/`、`_sessions/`、`_schedules/`，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 仍是 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
+`plugins/opc-core/permissions.manifest.json` 里，外壳和已启用的 `m1-notes` 声明 `**/*.md` 与 `**/*.markdown` 的读写。外壳另外声明 `/home/br1efx/.opc/` 和 `/home/br1efx/.opc/worktrees/` 的读写，给接单状态库和工作副本。外壳联网打开，主机是 `127.0.0.1` 和 `api.github.com`。`127.0.0.1` 给 daemon 读本机 Magpie（3425）和数据仓（3475），以及电脑端打开的管理页（3430）。`api.github.com` 给 opc-intake 经 `gh` 访问 opc-os，不在进程里写死令牌。`m1-notes` 不联网。`m2-card-wall` 已启用，读写只声明 `/home/br1efx/notes/cards/` 和 `/home/br1efx/notes/cards/_views/`，不联网。`m4-tasks` 已启用，读写声明 `/home/br1efx/notes/cards/` 以及 `_workflows/`、`_sessions/`、`_schedules/`，不联网。`m3-gateway`、`m5-ui`、`m6-i18n` 仍是 `enabled: false`，未启用时也不能预先写上路径或主机。界面上的模块开关是另一份主机设置，默认打开；它不改这份清单。
 
 对照方式：
 

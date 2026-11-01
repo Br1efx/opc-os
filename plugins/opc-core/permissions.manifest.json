@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "pluginId": "opc-core",
   "filesystem": {
-    "read": ["**/*.md", "**/*.markdown"],
-    "write": ["**/*.md", "**/*.markdown"]
+    "read": ["**/*.md", "**/*.markdown", "/home/br1efx/.opc/", "/home/br1efx/.opc/worktrees/"],
+    "write": ["**/*.md", "**/*.markdown", "/home/br1efx/.opc/", "/home/br1efx/.opc/worktrees/"]
   },
   "network": {
     "enabled": true,
-    "hosts": ["127.0.0.1"]
+    "hosts": ["127.0.0.1", "api.github.com"]
   },
   "modules": {
     "m1-notes": {

@@ -18,6 +18,7 @@ import { dispatchRole, type RolePort } from "../shared/dispatch";
 import { shellSettings } from "../shared/shell";
 import { TASK_AGENT_CWD, TASK_AGENT_PROVIDER } from "../shared/workflow";
 import { createNodeCardFiles } from "./cards-fs";
+import { intakeFromCard } from "./intake";
 import { WORKFLOW_SEEDS } from "./workflow-seeds";
 
 const closed = "任务与工作流已关闭";
@@ -81,6 +82,9 @@ export function registerCards(
   server.handle(createCardRpc, async (input) => {
     if (!(await cardsOn())) return { ok: false, detail: "卡片墙已关闭", id: "" };
     const result = await store.createManual(input);
+    if (result.ok && input.type === "task") {
+      intakeFromCard({ id: result.id, title: input.title, oneLiner: input.oneLiner, at: input.now });
+    }
     return { ok: result.ok, detail: result.detail, id: result.id };
   });
   server.handle(actCardRpc, async (input) => {
@@ -93,7 +97,14 @@ export function registerCards(
         return { ok: false, detail: closed, delivery: null };
       }
     }
-    return store.act({ id: input.id, action, now: input.now });
+    const acted = await store.act({ id: input.id, action, now: input.now });
+    if (acted.ok && action.action === "to-task") {
+      const library = await store.load(input.now);
+      const found = library.cards.find((file) => file.text.includes(`id: ${input.id}`) || file.name.startsWith(input.id));
+      const title = found?.text.match(/^title:\s*(.+)$/m)?.[1]?.replace(/^"|"$/g, "") ?? input.id;
+      intakeFromCard({ id: input.id, title, oneLiner: title, at: input.now });
+    }
+    return acted;
   });
   server.handle(startTaskRpc, async (input) => {
     if (!(await tasksOn())) return { ok: false, detail: closed, id: "", delivery: null };

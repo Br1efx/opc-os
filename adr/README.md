@@ -20,3 +20,4 @@
 | [0004](0004-d2-notes.md) | 已接受 | D2 的文件面板笔记、批注和锁定 |
 | [0005](0005-d3-card-wall.md) | 已接受 | D3 的卡片墙和 Bases 子集 |
 | [0006](0006-d5a-tasks-workflows.md) | 已接受 | D5a 的任务字段、工作流和卡住阶梯 |
+| [0007](0007-d5b-opc-intake.md) | 已接受 | D5b 的 opc-intake 接单引擎和调度员 |

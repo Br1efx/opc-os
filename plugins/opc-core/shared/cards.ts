@@ -11,6 +11,7 @@ import {
   type CardType,
 } from "@opc-os/card-protocol";
 import { parseViewDocument, parseYamlSubset, queryCards, renderView, type ViewDefinition } from "./bases";
+import { isIntakeAwaiting } from "./intake-await";
 import { scheduleCommands, renderScheduleRecord, type ScheduleCommand } from "./schedules";
 import { archiveSessions, previewCleanup, searchSessions, type TrackedSession } from "./sessions";
 import { applyTransition, readTaskMeta, runtimeFromCard, writeTaskMeta } from "./task-doc";
@@ -485,13 +486,16 @@ export function readLibrary(library: CardLibrary): LibraryReading {
     }
   }
   const awaitingView = ordered.find((view) => view.id === "awaiting") ?? DEFAULT_VIEWS[0];
-  const awaiting = awaitingView
-    ? queryCards(
-        valid.map((item) => item.bag),
-        awaitingView,
-        { now: library.now },
-      ).matched.length
-    : 0;
+  const inboxIds = new Set(
+    awaitingView
+      ? queryCards(
+          valid.map((item) => item.bag),
+          awaitingView,
+          { now: library.now },
+        ).matched.map((item) => String(item.id ?? ""))
+      : [],
+  );
+  const awaiting = valid.filter((item) => isIntakeAwaiting(item.props, inboxIds.has(item.card.id))).length;
   return { now: library.now, views: ordered, viewErrors, valid, invalid, awaiting };
 }
 
