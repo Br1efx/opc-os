@@ -16,11 +16,11 @@
     {
       "id": "br1efx/opc-core",
       "name": "一人公司 OS",
-      "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎，以及 D5a 任务字段、工作流和卡住阶梯之上，修 Paseo 内存包路径，并把工作流模板打进服务端包。",
+      "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎、D5a 任务字段、工作流和卡住阶梯，以及 Paseo 安装路径修复之上，加上 D5b：opc-intake 接单引擎（默认观察模式）、工单阶段和 GitHub 端口。packages/intake-core 来自上游 6337fc8。不自动合并 PR。这份 registry 把安装提交钉到 f436b51dc9f1902da204de0d9a9013ed27ebe287。",
       "translations": {
         "zh-CN": {
           "name": "一人公司 OS",
-          "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎，以及 D5a 任务字段、工作流和卡住阶梯之上，修 Paseo 内存包路径，并把工作流模板打进服务端包。"
+          "description": "一人公司操作系统的核心插件外壳。在既有外壳、卡片协议、Magpie 网关与监控（opc-datad、成本熔断）、文件面板笔记 v1（编辑、问 Agent、批注、锁定）、卡片墙与 Bases 子集查询引擎、D5a 任务字段、工作流和卡住阶梯，以及 Paseo 安装路径修复之上，加上 D5b：opc-intake 接单引擎（默认观察模式）、工单阶段和 GitHub 端口。packages/intake-core 来自上游 6337fc8。不自动合并 PR。这份 registry 把安装提交钉到 f436b51dc9f1902da204de0d9a9013ed27ebe287。"
         }
       },
       "license": "MIT",
@@ -31,20 +31,20 @@
       },
       "repository": {
         "url": "https://github.com/Br1efx/opc-os",
-        "commit": "1d9eba651d7c1cdf85222c74e69447b2f1acb63c"
+        "commit": "f436b51dc9f1902da204de0d9a9013ed27ebe287"
       },
       "artifact": {
         "kind": "git",
         "remote": "https://github.com/Br1efx/opc-os.git",
-        "commit": "1d9eba651d7c1cdf85222c74e69447b2f1acb63c",
+        "commit": "f436b51dc9f1902da204de0d9a9013ed27ebe287",
         "pluginPath": "plugins/opc-core"
       },
       "media": [],
-      "submittedAt": "2026-11-01T04:53:53.000Z",
-      "reviewedAt": "2026-11-01T04:53:53.000Z",
-      "updatedAt": "2026-11-01T04:53:53.000Z",
-      "publishedAt": "2026-11-01T04:53:53.000Z"
+      "submittedAt": "2026-11-01T05:09:59.000Z",
+      "reviewedAt": "2026-11-01T05:09:59.000Z",
+      "updatedAt": "2026-11-01T05:09:59.000Z",
+      "publishedAt": "2026-11-01T05:09:59.000Z"
     }
   ],
-  "generatedAt": "2026-11-01T04:53:53.000Z"
+  "generatedAt": "2026-11-01T05:09:59.000Z"
 }
