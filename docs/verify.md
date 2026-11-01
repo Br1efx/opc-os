@@ -5,7 +5,7 @@
 | # | 项 | 现在 | 命令 |
 | --- | --- | --- | --- |
 | 1 | 类型检查 | 强制。失败则 `pnpm verify` 退出 1 | `pnpm typecheck` |
-| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，`opc-core` 的外壳、网关和接单测试，`intake-core` 的上游 core 测试，以及 `scripts/verify` 里的策略测试 | `pnpm test` |
+| 2 | 单元测试 | 强制。`card-protocol` 的字段形状，`opc-core` 的外壳、网关和接单测试，`intake-core` 的上游 core 测试，以及 `scripts/verify` 里的策略测试。其中 shared bundle 检查从插件入口走依赖，确认 `shared/` 到不了 Node 内置模块 | `pnpm test` |
 | 3 | 目录边界 | 强制 | `pnpm verify:boundary` |
 | 4 | 许可证扫描 | 强制 | `pnpm verify:license` |
 | 5 | 权限清单对照 | 强制 | `pnpm verify:manifest` |
@@ -26,7 +26,7 @@
 - 一个插件不能 import 另一个插件。
 - 界面端（`index.client.tsx`、`client/`）不能 import 服务端 SDK 或 `server/`。服务端和 `shared/` 不能 import `react-native`、界面端 SDK 或 `client/`。
 
-这是源码级别的检查，不是 Paseo 编译器。编译器要等装上 Paseo 再跑。
+这是源码级别的检查，不是 Paseo 编译器。编译器要等装上 Paseo 再跑。shared bundle 那一项按同样的目录规则走入口依赖：`shared/` 的传递依赖里出现 `node:` 就失败，`server/` 里的 `node:` 不算。它抓的是 `opc-intake` 这种「状态机放进 shared，Node 内置跟着进 shared bundle」的情况，不代替真机 `paseo plugin reload`。
 
 ## 许可证
 

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import type { FlowSnapshot } from "../shared/intake-flow";
+import type { FlowSnapshot } from "./intake-flow";
 
 export function openIntakeDb(file: string): DatabaseSync {
   fs.mkdirSync(path.dirname(file), { recursive: true });

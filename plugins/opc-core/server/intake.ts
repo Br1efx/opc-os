@@ -9,7 +9,7 @@ import { DISPATCHER_MODEL, EXECUTOR_RULES, formatAuto, toolsForRole } from "../s
 import { planExecutorAgent } from "../shared/executor-plan";
 import { commentCreateArgs, commentListArgs, githubCommand, parseComments, SOURCE_PORTS } from "../shared/github-source";
 import { renderIntakeCard } from "../shared/intake-card";
-import { IntakeFlow } from "../shared/intake-flow";
+import { IntakeFlow } from "./intake-flow";
 import { intakeSnapshotRpc } from "../shared/intake-rpc";
 import { stageLabel } from "../shared/intake-await";
 import { DEFAULT_POLICY_TEXT } from "../shared/policy-default";
