@@ -2,6 +2,7 @@ import type { PluginScreenProps } from "@getpaseo/plugin/client";
 import { Component, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import { moduleById, type ModuleId } from "../shared/shell";
+import { GatewayScreen } from "./gateway-screen";
 import { useScreenStyles } from "./screen-style";
 
 class ModuleBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
@@ -32,9 +33,10 @@ export function ModuleScreen(props: PluginScreenProps & { moduleId: ModuleId }) 
   );
 }
 
-function ModuleBody({ theme, layout, moduleId }: PluginScreenProps & { moduleId: ModuleId }) {
+function ModuleBody({ moduleId, ...props }: PluginScreenProps & { moduleId: ModuleId }) {
+  if (moduleId === "m3-gateway") return <GatewayScreen {...props} />;
   const mod = moduleById(moduleId);
-  const styles = useScreenStyles(theme, layout.compact);
+  const styles = useScreenStyles(props.theme, props.layout.compact);
   return (
     <View style={styles.screen}>
       <Text style={styles.title}>{mod.title}</Text>

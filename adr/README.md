@@ -16,3 +16,4 @@
 | --- | --- | --- |
 | [0001](0001-d0-paseo-shell.md) | 已接受 | D0 的 opc-core 按 Paseo 0.14 运行时入口搭空壳 |
 | [0002](0002-d1-shell-and-cards.md) | 已接受 | D1 的外壳开关、设置通知和卡片协议 |
+| [0003](0003-d4-gateway-monitor.md) | 已接受 | D4 外接 Magpie，本仓库只做监控和数据仓起步 |

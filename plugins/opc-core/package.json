@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test shared/*.test.mts"
+    "test": "node --experimental-strip-types --import ../../scripts/verify/register-ts-import.mjs --test shared/*.test.mts server/*.test.mts"
   },
   "dependencies": {
     "@opc-os/card-protocol": "workspace:*"

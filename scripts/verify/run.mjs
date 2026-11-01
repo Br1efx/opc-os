@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 import { scanBoundary } from "./boundary.mjs";
 import { scanLicenses } from "./license-scan.mjs";
 import { scanManifest } from "./manifest.mjs";
@@ -11,6 +12,20 @@ import { repoRoot } from "./root.mjs";
 function runPnpm(script) {
   const result = spawnSync("pnpm", [script], { cwd: repoRoot, stdio: "inherit" });
   return result.status === 0;
+}
+
+function runDatad() {
+  const cwd = path.join(repoRoot, "services/opc-datad");
+  const result = spawnSync("go", ["test", "./..."], {
+    cwd,
+    stdio: "inherit",
+    env: { ...process.env, CGO_ENABLED: "1" },
+  });
+  if (result.error) return { ok: false, detail: result.error.message };
+  return {
+    ok: result.status === 0,
+    detail: "CGO_ENABLED=1 go test ./...（services/opc-datad）。这不是架构页那 7 项里的一项。",
+  };
 }
 
 function fromScan(title, scan) {
@@ -37,6 +52,13 @@ const items = [
   fromScan("性能预算配置", scanPerf),
   PERF_MEASUREMENT,
 ];
+
+const datad = runDatad();
+items.push({
+  title: "数据仓测试",
+  disposition: datad.ok ? "pass" : "fail",
+  detail: datad.detail,
+});
 
 const mobile = inspectMobile(repoRoot);
 items.push({

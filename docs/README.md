@@ -5,6 +5,7 @@
 | 文档 | 内容 |
 | --- | --- |
 | [modules.md](modules.md) | M1–M6 目录，以及外壳上的运行时开关。 |
+| [gateway.md](gateway.md) | M3 怎么接本机 Magpie、嵌管理页、写 opc-datad，以及成本熔断。 |
 | [glossary.md](glossary.md) | 中文术语表。界面默认中文，少数词保留英文。 |
 | [paseo-plugin.md](paseo-plugin.md) | `opc-core` 如何对齐 Paseo 0.14 插件目录，以及本阶段的假设。 |
 | [verify.md](verify.md) | verify 七项里哪些已经强制执行，哪些明确未执行。 |
